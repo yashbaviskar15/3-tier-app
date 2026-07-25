@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+src/app/node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Environment & Secrets
+.env
+*.env.local
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Enterprise 3-Tier Web Application Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: #ffffff;
+      --border-light: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #94a3b8;
+      --brand-primary: #2563eb;
+      --brand-gradient: linear-gradient(135deg, #2563eb, #4f46e5);
+      --accent-indigo: #4f46e5;
+      --accent-purple: #7c3aed;
+      --accent-cyan: #0891b2;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --success-border: #a7f3d0;
+      --danger: #dc2626;
+      --danger-bg: #fef2f2;
+      --danger-border: #fecaca;
+      --warning: #d97706;
+      --warning-bg: #fffbeb;
+      --warning-border: #fde68a;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08), 0 4px 6px -4px rgba(0,0,0,0.04);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER BAR ── */
+    header {
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-light);
+      padding: 1rem 2rem;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-container { display: flex; align-items: center; gap: 0.85rem; }
+
+    .brand-logo {
+      width: 40px; height: 40px;
+      background: var(--brand-gradient);
+      border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; color: white; font-size: 0.85rem;
+      letter-spacing: 0.04em;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .brand-text h1 {
+      font-size: 1.15rem; font-weight: 800;
+      color: var(--text-primary); letter-spacing: -0.02em;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem; font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .header-pills { display: flex; align-items: center; gap: 0.75rem; }
+
+    .pill-item {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-light);
+      padding: 0.35rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.78rem; font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .status-chip-ok {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success);
+      display: flex; align-items: center; gap: 0.4rem;
+    }
+
+    .pulse-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.95); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.7; }
+      100% { transform: scale(0.95); opacity: 1; }
+    }
+
+    /* ── MAIN LAYOUT ── */
+    main {
+      flex: 1; max-width: 1400px; width: 100%;
+      margin: 1.5rem auto; padding: 0 1.5rem;
+      display: flex; flex-direction: column; gap: 1.5rem;
+    }
+
+    .intro-bar {
+      display: flex; flex-wrap: wrap;
+      justify-content: space-between; align-items: center; gap: 1rem;
+    }
+
+    .intro-title h2 {
+      font-size: 1.65rem; font-weight: 800;
+      letter-spacing: -0.025em; color: var(--text-primary);
+    }
+
+    .intro-title p {
+      color: var(--text-secondary); font-size: 0.9rem; margin-top: 0.15rem;
+    }
+
+    .btn-sync {
+      background: var(--brand-primary);
+      border: none; color: white;
+      padding: 0.65rem 1.3rem; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; gap: 0.45rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-sync:hover {
+      background: #1d4ed8;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-sync svg { width: 15px; height: 15px; transition: transform 0.5s ease; }
+    .btn-sync.spinning svg { transform: rotate(360deg); }
+
+    /* ── DASHBOARD GRID ── */
+    .dashboard-layout {
+      display: grid; grid-template-columns: 1fr; gap: 1.5rem;
+    }
+
+    @media (min-width: 1024px) {
+      .dashboard-layout { grid-template-columns: 320px 1fr; }
+    }
+
+    /* ── TOPOLOGY CARD ── */
+    .topology-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px; padding: 1.5rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .section-title {
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .topology-flow {
+      display: flex; flex-direction: row;
+      justify-content: space-between; align-items: center;
+      padding: 0.75rem 0; position: relative;
+    }
+
+    @media (min-width: 1024px) {
+      .topology-flow {
+        flex-direction: column; height: 460px;
+        justify-content: space-between; align-items: center;
+      }
+    }
+
+    .topology-node {
+      width: 52px; height: 52px;
+      background: var(--bg-tertiary);
+      border: 2px solid var(--border-light);
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative; z-index: 5;
+      transition: all 0.3s ease;
+    }
+
+    .topology-node.n-active {
+      background: #eff6ff;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .topology-node.n-connected {
+      background: var(--success-bg);
+      border-color: var(--success);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    .topology-node svg { width: 22px; height: 22px; color: var(--text-tertiary); }
+    .topology-node.n-active svg { color: var(--brand-primary); }
+    .topology-node.n-connected svg { color: var(--success); }
+
+    .node-label {
+      position: absolute; top: 58px;
+      font-size: 0.7rem; font-weight: 600;
+      color: var(--text-secondary);
+      white-space: nowrap; text-align: center;
+    }
+
+    @media (min-width: 1024px) {
+      .node-label { left: 66px; top: 16px; text-align: left; }
+    }
+
+    .flow-line { position: absolute; background: var(--border-light); z-index: 1; }
+    .flow-line-h { height: 2px; top: calc(50% - 1px); left: 0; width: 100%; }
+    .flow-line-v { display: none; }
+
+    @media (min-width: 1024px) {
+      .flow-line-h { display: none; }
+      .flow-line-v { display: block; width: 2px; left: calc(50% - 1px); top: 0; height: 100%; }
+    }
+
+    .flow-pulse {
+      position: absolute;
+      width: 8px; height: 8px;
+      background: var(--brand-primary);
+      border-radius: 50%; z-index: 2;
+      box-shadow: 0 0 8px var(--brand-primary);
+      opacity: 0;
+    }
+
+    .flow-pulse-on { animation: flowM 1.8s linear infinite; }
+
+    @media (min-width: 1024px) {
+      .flow-pulse-on { animation: flowD 1.8s linear infinite; }
+    }
+
+    @keyframes flowM { 0% { left: 5%; opacity: 1; } 100% { left: 95%; opacity: 1; } }
+    @keyframes flowD { 0% { top: 5%; opacity: 1; } 100% { top: 95%; opacity: 1; } }
+
+    /* ── DETAILS PANEL ── */
+    .details-panel { display: flex; flex-direction: column; gap: 1.5rem; }
+
+    /* ── TIER CARDS ── */
+    .grid-tiers {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px; padding: 1.25rem;
+      position: relative; overflow: hidden;
+      display: flex; flex-direction: column; gap: 1rem;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .card:hover {
+      box-shadow: var(--shadow-lg);
+      transform: translateY(-2px);
+      border-color: var(--border-medium);
+    }
+
+    .card-accent {
+      position: absolute; top: 0; left: 0; width: 100%; height: 3px;
+    }
+
+    .accent-cyan { background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent); }
+    .accent-blue { background: linear-gradient(90deg, transparent, var(--brand-primary), transparent); }
+    .accent-purple { background: linear-gradient(90deg, transparent, var(--accent-purple), transparent); }
+
+    .card-header { display: flex; justify-content: space-between; align-items: flex-start; }
+
+    .card-title h4 { font-size: 1.05rem; font-weight: 700; color: var(--text-primary); }
+    .card-title span {
+      font-size: 0.65rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.08em;
+      color: var(--text-tertiary);
+    }
+
+    .badge {
+      padding: 0.2rem 0.55rem; border-radius: 9999px;
+      font-size: 0.7rem; font-weight: 700;
+      display: flex; align-items: center; gap: 0.3rem;
+    }
+
+    .badge-ok { background: var(--success-bg); border: 1px solid var(--success-border); color: var(--success); }
+    .badge-warn { background: var(--warning-bg); border: 1px solid var(--warning-border); color: var(--warning); }
+
+    .card-desc { font-size: 0.8rem; color: var(--text-secondary); line-height: 1.5; }
+
+    .metric-list { display: flex; flex-direction: column; gap: 0.5rem; }
+
+    .metric-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.45rem 0.65rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      border-radius: 8px; font-size: 0.8rem;
+    }
+
+    .metric-key { color: var(--text-secondary); font-weight: 500; }
+    .metric-val { font-weight: 600; color: var(--text-primary); }
+    .metric-val.accent { color: var(--brand-primary); }
+
+    /* ── CONFIG CARD ── */
+    .config-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px; padding: 1.5rem;
+      display: flex; flex-direction: column; gap: 1.25rem;
+      box-shadow: var(--shadow-md);
+    }
+
+    .config-header h3 {
+      font-size: 1.1rem; font-weight: 700;
+      color: var(--text-primary); margin-bottom: 0.15rem;
+      display: flex; align-items: center; gap: 0.5rem;
+    }
+
+    .config-header p { font-size: 0.82rem; color: var(--text-secondary); }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 0.85rem;
+    }
+
+    @media (min-width: 640px) {
+      .form-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+
+    .form-group label {
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.06em;
+      color: var(--text-tertiary);
+    }
+
+    .input-field, .select-field {
+      background: var(--bg-secondary);
+      border: 1.5px solid var(--border-light);
+      padding: 0.6rem 0.9rem; border-radius: 10px;
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif; font-size: 0.85rem;
+      outline: none; transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .input-field:focus, .select-field:focus {
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+    }
+
+    .btn-row {
+      display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 0.5rem;
+    }
+
+    .btn-primary {
+      background: var(--brand-gradient);
+      border: none; color: white;
+      padding: 0.65rem 1.4rem; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 0.45rem;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+    }
+
+    .btn-demo {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-medium);
+      color: var(--text-primary);
+      padding: 0.65rem 1.2rem; border-radius: 10px;
+      font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s ease;
+    }
+
+    .btn-demo:hover {
+      background: var(--border-light);
+    }
+
+    /* ── TERMINAL CONSOLE ── */
+    .console-section {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .console-bar {
+      background: #1e293b;
+      border-bottom: 1px solid #334155;
+      padding: 0.75rem 1.25rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+
+    .console-bar h3 {
+      font-size: 0.82rem; font-weight: 600; color: #e2e8f0;
+      display: flex; align-items: center; gap: 0.45rem;
+    }
+
+    .console-dots { display: flex; gap: 0.35rem; }
+    .cdot { width: 10px; height: 10px; border-radius: 50%; }
+    .cdot-r { background: #ef4444; }
+    .cdot-y { background: #f59e0b; }
+    .cdot-g { background: #22c55e; }
+
+    .console-body {
+      padding: 1.1rem 1.25rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      max-height: 220px;
+      overflow-y: auto;
+      line-height: 1.6;
+      scrollbar-width: none;
+    }
+
+    .console-body::-webkit-scrollbar { display: none; }
+
+    .cline { display: flex; gap: 0.6rem; margin-bottom: 0.25rem; }
+    .ctime { color: #475569; user-select: none; white-space: nowrap; }
+    .cprompt { color: #38bdf8; user-select: none; font-weight: 600; }
+    .cmsg { word-break: break-all; }
+    .cmsg.info { color: #94a3b8; }
+    .cmsg.success { color: #34d399; }
+    .cmsg.error { color: #f87171; }
+    .cmsg.warning { color: #fbbf24; }
+
+    footer {
+      margin-top: auto; padding: 1.5rem 2rem; text-align: center;
+      border-top: 1px solid var(--border-light);
+      color: var(--text-tertiary); font-size: 0.8rem;
+      background: var(--bg-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    const API_BASE = window.location.protocol.startsWith('http') ? '' : 'http://localhost:8080';
+
+    function Header({ status, region }) {
+      return (
+        <header>
+          <div className="brand-container">
+            <div className="brand-logo">3T</div>
+            <div className="brand-text">
+              <h1>Enterprise Operations Console</h1>
+              <span>Production 3-Tier Application Architecture</span>
+            </div>
+          </div>
+          <div className="header-pills">
+            <div className="pill-item">Region: <strong>{region || 'ap-south-1'}</strong></div>
+            <div className="pill-item status-chip-ok">
+              <div className="pulse-dot"></div>
+              {status}
+            </div>
+          </div>
+        </header>
+      );
+    }
+
+    function TopologyMap({ appUp, dbStatus, pulseOn }) {
+      const dbClass = dbStatus === 'CONNECTED' ? 'n-connected' : '';
+      return (
+        <div className="topology-card">
+          <div className="section-title">Network Architecture Topology</div>
+          <div className="topology-flow">
+            <div className="flow-line flow-line-h"></div>
+            <div className="flow-line flow-line-v"></div>
+            <div className={`flow-pulse ${pulseOn ? 'flow-pulse-on' : ''}`}></div>
+
+            <div className="topology-node n-active">
+              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21V9.75M20.716 14.253a9.004 9.004 0 01-17.432 0"></path></svg>
+              <div className="node-label">Presentation Gateway</div>
+            </div>
+
+            <div className="topology-node n-active">
+              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"></path></svg>
+              <div className="node-label">Load Balancer</div>
+            </div>
+
+            <div className={`topology-node ${appUp ? 'n-active' : ''}`}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a3 3 0 013-3"></path></svg>
+              <div className="node-label">Application Fleet</div>
+            </div>
+
+            <div className={`topology-node ${dbClass}`}>
+              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"></path></svg>
+              <div className="node-label">Database Cluster</div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function TierCard({ tier, title, desc, accentClass, badgeClass, badgeText, metrics }) {
+      return (
+        <div className="card">
+          <div className={`card-accent ${accentClass}`}></div>
+          <div className="card-header">
+            <div className="card-title">
+              <span>{tier}</span>
+              <h4>{title}</h4>
+            </div>
+            <div className={`badge ${badgeClass}`}>
+              <div className="pulse-dot" style={{ width: '6px', height: '6px' }}></div>
+              {badgeText}
+            </div>
+          </div>
+          <div className="card-desc">{desc}</div>
+          <div className="metric-list">
+            {metrics.map((m, i) => (
+              <div className="metric-row" key={i}>
+                <span className="metric-key">{m.label}</span>
+                <span className={`metric-val ${m.accent ? 'accent' : ''}`}>{m.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    function DatabaseConfigPanel({ onConnectDb, onUseMock }) {
+      const [host, setHost] = useState('');
+      const [port, setPort] = useState('3306');
+      const [engine, setEngine] = useState('MYSQL');
+      const [user, setUser] = useState('admin');
+      const [password, setPassword] = useState('');
+      const [database, setDatabase] = useState('appdb');
+
+      const handleConnect = () => {
+        if (!host.trim() || !user.trim() || !password.trim() || !database.trim()) return;
+        onConnectDb({ host: host.trim(), port: port.trim(), user: user.trim(), password: password.trim(), database: database.trim(), engine });
+      };
+
+      return (
+        <div className="config-card">
+          <div className="config-header">
+            <h3>
+              <svg style={{ width: '18px', height: '18px', color: 'var(--brand-primary)' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"></path></svg>
+              Database Cluster Configuration
+            </h3>
+            <p>Connect your primary enterprise database cluster (MySQL or PostgreSQL) across private database subnets.</p>
+          </div>
+
+          <div className="form-grid">
+            <div className="form-group">
+              <label>Database Engine</label>
+              <select className="select-field" value={engine} onChange={(e) => {
+                setEngine(e.target.value);
+                setPort(e.target.value === 'POSTGRESQL' ? '5432' : '3306');
+              }}>
+                <option value="MYSQL">MySQL (Port 3306)</option>
+                <option value="POSTGRESQL">PostgreSQL (Port 5432)</option>
+              </select>
+            </div>
+
+            <div className="form-group">
+              <label>Database Host Endpoint</label>
+              <input
+                type="text"
+                className="input-field"
+                value={host}
+                onChange={(e) => setHost(e.target.value)}
+                placeholder="db-primary.prod.internal"
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Port</label>
+              <input
+                type="text"
+                className="input-field"
+                value={port}
+                onChange={(e) => setPort(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Database Name</label>
+              <input
+                type="text"
+                className="input-field"
+                value={database}
+                onChange={(e) => setDatabase(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Master Username</label>
+              <input
+                type="text"
+                className="input-field"
+                value={user}
+                onChange={(e) => setUser(e.target.value)}
+              />
+            </div>
+
+            <div className="form-group">
+              <label>Master Password</label>
+              <input
+                type="password"
+                className="input-field"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••••••"
+              />
+            </div>
+          </div>
+
+          <div className="btn-row">
+            <button className="btn-primary" onClick={handleConnect}>
+              Connect Database
+            </button>
+            <button className="btn-demo" onClick={onUseMock}>
+              Use Demo DB (Local Fallback)
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    function ConsoleTerminal({ logs, onExecCommand, onClearLogs }) {
+      const [cmd, setCmd] = useState('');
+      const ref = useRef(null);
+
+      useEffect(() => {
+        if (ref.current) ref.current.scrollTop = ref.current.scrollHeight;
+      }, [logs]);
+
+      const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+          const inputCmd = cmd.trim();
+          if (!inputCmd) return;
+          if (inputCmd === 'clear' || inputCmd === 'cls') {
+            onClearLogs();
+          } else {
+            onExecCommand(inputCmd);
+          }
+          setCmd('');
+        }
+      };
+
+      return (
+        <div className="console-section">
+          <div className="console-bar">
+            <h3>
+              <svg style={{ width: '14px', height: '14px', color: '#38bdf8' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"></path></svg>
+              Operations & Developer Terminal
+            </h3>
+            <div className="console-dots">
+              <div className="cdot cdot-r"></div>
+              <div className="cdot cdot-y"></div>
+              <div className="cdot cdot-g"></div>
+            </div>
+          </div>
+          <div className="console-body" ref={ref}>
+            {logs.map((l, i) => (
+              <div className="cline" key={i}>
+                <span className="ctime">{l.time}</span>
+                <span className="cprompt">ops-console$</span>
+                <span className={`cmsg ${l.type}`}>{l.text}</span>
+              </div>
+            ))}
+            <div className="cline" style={{ marginTop: '0.4rem', alignItems: 'center' }}>
+              <span className="ctime">{new Date().toLocaleTimeString()}</span>
+              <span className="cprompt">ops-console$</span>
+              <input
+                type="text"
+                value={cmd}
+                onChange={(e) => setCmd(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Type command (e.g. health, db-status, info, ls, pwd, date, whoami, help)..."
+                style={{
+                  flex: 1,
+                  background: 'transparent',
+                  border: 'none',
+                  outline: 'none',
+                  color: '#38bdf8',
+                  fontFamily: "'JetBrains Mono', monospace",
+                  fontSize: '0.75rem'
+                }}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    function App() {
+      const [appData, setAppData] = useState({ status: '...', hostname: '', platform: '', region: '' });
+      const [dbData, setDbData] = useState({ status: '...', database: '', host: '', engine: '' });
+      const [logs, setLogs] = useState([]);
+      const [syncing, setSyncing] = useState(false);
+      const [pulseOn, setPulseOn] = useState(false);
+      const [globalStatus, setGlobalStatus] = useState('Operational');
+
+      const log = (text, type = 'info') => {
+        setLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text, type }]);
+      };
+
+      const triggerPulse = () => { setPulseOn(false); setTimeout(() => setPulseOn(true), 30); };
+
+      const sync = async () => {
+        setSyncing(true);
+        log('Syncing operational metrics across 3-tier subnets...');
+        triggerPulse();
+
+        try {
+          const r = await fetch(API_BASE + '/api/info');
+          if (!r.ok) throw new Error();
+          const d = await r.json();
+          setAppData({ status: 'UP', hostname: d.hostname, platform: `${d.platform} (${d.arch})`, region: d.region });
+          log(`Application fleet node online: ${d.hostname} (${d.region})`, 'success');
+        } catch {
+          setAppData({ status: 'DOWN', hostname: 'N/A', platform: 'N/A', region: 'ap-south-1' });
+          log('Application load balancer health check failed', 'error');
+          setGlobalStatus('Degraded');
+        }
+
+        try {
+          const r = await fetch(API_BASE + '/api/db-status');
+          const d = await r.json();
+          if (d.status === 'CONNECTED') {
+            setDbData({ status: 'CONNECTED', database: d.database, host: d.host, engine: d.engine });
+            log(`Database cluster connected: "${d.database}" (${d.engine})`, 'success');
+          } else {
+            setDbData({ status: 'DISCONNECTED', database: 'N/A', host: 'N/A', engine: 'N/A' });
+            log('Database cluster standby sync warning', 'warning');
+          }
+        } catch {
+          setDbData({ status: 'ERROR', database: 'ERROR', host: 'ERROR', engine: 'ERROR' });
+          log('Database subnet handshake failed', 'error');
+          setGlobalStatus('Degraded');
+        }
+
+        setTimeout(() => setSyncing(false), 500);
+      };
+
+      const connectDb = async (dbConfig) => {
+        log(`Initiating database handshake to ${dbConfig.host}:${dbConfig.port}...`, 'info');
+        try {
+          const r = await fetch(API_BASE + '/api/connect-db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(dbConfig)
+          });
+          const d = await r.json();
+          if (r.ok) {
+            log(`Successfully connected to database cluster: "${d.database}"`, 'success');
+            setGlobalStatus('Operational');
+            sync();
+          } else {
+            log(`Database connection failed: ${d.message}`, 'error');
+          }
+        } catch (e) {
+          log(`Database connection error: ${e.message}`, 'error');
+        }
+      };
+
+      const useMockDb = async () => {
+        log('Switched to local database fallback emulator.', 'info');
+        try {
+          const r = await fetch(API_BASE + '/api/connect-db', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ engine: 'MOCK' })
+          });
+          const d = await r.json();
+          if (r.ok) {
+            log('Local fallback database active.', 'success');
+            setGlobalStatus('Operational');
+            sync();
+          }
+        } catch (e) {
+          log(`Failed to switch to demo DB: ${e.message}`, 'error');
+        }
+      };
+
+      const clearLogs = () => { setLogs([]); };
+
+      const execCommand = async (command) => {
+        log(`> ${command}`, 'info');
+        try {
+          const r = await fetch(API_BASE + '/api/exec', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ command })
+          });
+          const d = await r.json();
+          if (d.output) {
+            const lines = d.output.split('\n');
+            lines.forEach(line => { log(line, 'success'); });
+          }
+        } catch (e) {
+          log(`Command execution failed: ${e.message}`, 'error');
+        }
+      };
+
+      useEffect(() => {
+        log('Interactive operations console initialized. Type "help" or Linux commands below.', 'info');
+        sync();
+      }, []);
+
+      return (
+        <React.Fragment>
+          <Header status={globalStatus} region={appData.region} />
+          <main>
+            <div className="intro-bar">
+              <div className="intro-title">
+                <h2>Production Environment</h2>
+                <p>Live metrics across Presentation, Application Fleet, and Core Database Tiers.</p>
+              </div>
+              <button className={`btn-sync ${syncing ? 'spinning' : ''}`} onClick={sync}>
+                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"></path></svg>
+                Sync Metrics
+              </button>
+            </div>
+
+            <div className="dashboard-layout">
+              <TopologyMap appUp={appData.status === 'UP'} dbStatus={dbData.status} pulseOn={pulseOn} />
+              <div className="details-panel">
+                <div className="grid-tiers">
+                  <TierCard
+                    tier="Tier 1" title="Presentation Tier" accentClass="accent-cyan"
+                    badgeClass="badge-ok" badgeText="Active Edge"
+                    desc="Global Edge CDN with SSL encryption and static storage."
+                    metrics={[
+                      { label: 'Content Gateway', value: 'Edge CDN Active', accent: true },
+                      { label: 'SSL Protocol', value: 'TLS 1.3' }
+                    ]}
+                  />
+                  <TierCard
+                    tier="Tier 2" title="Application Tier" accentClass="accent-blue"
+                    badgeClass={appData.status === 'UP' ? 'badge-ok' : 'badge-warn'}
+                    badgeText={appData.status === 'UP' ? 'Healthy' : 'Degraded'}
+                    desc="Load balanced application fleet running on container nodes."
+                    metrics={[
+                      { label: 'Active Host', value: appData.hostname || '---' },
+                      { label: 'Cluster Status', value: 'Nodes Healthy' }
+                    ]}
+                  />
+                  <TierCard
+                    tier="Tier 3" title="Database Tier" accentClass="accent-purple"
+                    badgeClass={dbData.status === 'CONNECTED' ? 'badge-ok' : 'badge-warn'}
+                    badgeText={dbData.status}
+                    desc="High availability relational database cluster with failover sync."
+                    metrics={[
+                      { label: 'Engine', value: dbData.engine || 'MySQL / PostgreSQL' },
+                      { label: 'Host Endpoint', value: dbData.host || '---' }
+                    ]}
+                  />
+                </div>
+
+                <DatabaseConfigPanel onConnectDb={connectDb} onUseMock={useMockDb} />
+                <ConsoleTerminal logs={logs} onExecCommand={execCommand} onClearLogs={clearLogs} />
+              </div>
+            </div>
+          </main>
+          <footer>
+            Enterprise Three-Tier Production Operations Console &bull; High Availability Architecture &bull; 2026
+          </footer>
+        </React.Fragment>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

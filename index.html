@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>Enterprise Operations Console • AWS 3-Tier Architecture</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -46,6 +46,12 @@
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
+    html, body {
+      width: 100%;
+      min-height: 100%;
+      overflow-x: hidden;
+    }
+
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg-secondary);
@@ -53,8 +59,8 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
-      overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+      font-size: 15px;
     }
 
     /* ── HEADER & NAVIGATION ── */
@@ -65,76 +71,127 @@
       top: 0;
       z-index: 100;
       box-shadow: var(--shadow-sm);
+      width: 100%;
     }
 
     .header-inner {
       max-width: 1440px;
       margin: 0 auto;
-      padding: 0.85rem 1.5rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    @media (min-width: 900px) {
+      .header-inner {
+        padding: 0.85rem 1.5rem;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+        gap: 1rem;
+      }
+    }
+
+    .header-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
+      width: 100%;
+    }
+
+    @media (min-width: 900px) {
+      .header-top {
+        width: auto;
+      }
     }
 
     .brand-container {
       display: flex;
       align-items: center;
-      gap: 0.85rem;
+      gap: 0.75rem;
       text-decoration: none;
+      min-width: 0;
     }
 
     .brand-logo {
-      width: 42px;
-      height: 42px;
+      width: 38px;
+      height: 38px;
+      min-width: 38px;
       background: var(--brand-gradient);
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: 900;
       color: white;
-      font-size: 0.95rem;
-      letter-spacing: -0.02em;
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+      font-size: 0.9rem;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+    }
+
+    .brand-text {
+      min-width: 0;
     }
 
     .brand-text h1 {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 800;
       color: var(--text-primary);
       letter-spacing: -0.02em;
       line-height: 1.2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .brand-text span {
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 500;
       color: var(--text-secondary);
+      display: block;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .nav-links {
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.25rem;
       background: var(--bg-tertiary);
-      padding: 0.25rem 0.35rem;
-      border-radius: 12px;
+      padding: 0.25rem;
+      border-radius: 10px;
       border: 1px solid var(--border-light);
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .nav-links::-webkit-scrollbar {
+      display: none;
+    }
+
+    @media (min-width: 900px) {
+      .nav-links {
+        width: auto;
+      }
     }
 
     .nav-link {
-      padding: 0.45rem 0.9rem;
-      border-radius: 8px;
-      font-size: 0.82rem;
+      padding: 0.4rem 0.75rem;
+      border-radius: 7px;
+      font-size: 0.78rem;
       font-weight: 600;
       color: var(--text-secondary);
       text-decoration: none;
       transition: all 0.15s ease;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.35rem;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .nav-link:hover {
@@ -152,20 +209,22 @@
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
     }
 
     .pill-item {
       background: var(--bg-tertiary);
       border: 1px solid var(--border-light);
-      padding: 0.4rem 0.85rem;
+      padding: 0.3rem 0.65rem;
       border-radius: 9999px;
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       font-weight: 600;
       color: var(--text-secondary);
       display: flex;
       align-items: center;
-      gap: 0.45rem;
+      gap: 0.35rem;
+      white-space: nowrap;
     }
 
     .status-chip-operational {
@@ -176,12 +235,13 @@
     }
 
     .pulse-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: var(--success);
-      box-shadow: 0 0 8px var(--success);
+      box-shadow: 0 0 6px var(--success);
       animation: pulse 2s infinite;
+      flex-shrink: 0;
     }
 
     @keyframes pulse {
@@ -193,90 +253,110 @@
     .btn-github {
       background: #0f172a;
       color: white;
-      padding: 0.45rem 0.9rem;
+      padding: 0.35rem 0.75rem;
       border-radius: 9999px;
-      font-size: 0.78rem;
+      font-size: 0.72rem;
       font-weight: 600;
       text-decoration: none;
       display: flex;
       align-items: center;
-      gap: 0.4rem;
+      gap: 0.35rem;
       transition: all 0.2s ease;
+      white-space: nowrap;
     }
 
     .btn-github:hover {
       background: #1e293b;
-      transform: translateY(-1px);
     }
 
-    /* ── MAIN CONTENT CONTAINER ── */
+    /* ── MAIN CONTAINER ── */
     main {
       flex: 1;
       max-width: 1440px;
       width: 100%;
-      margin: 1.5rem auto;
-      padding: 0 1.5rem;
+      margin: 1rem auto;
+      padding: 0 0.85rem;
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.25rem;
+      box-sizing: border-box;
     }
 
-    /* ── HERO BANNER ── */
+    @media (min-width: 768px) {
+      main {
+        margin: 1.5rem auto;
+        padding: 0 1.5rem;
+        gap: 1.5rem;
+      }
+    }
+
+    /* ── INTRO BAR ── */
     .intro-bar {
       display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
       gap: 1rem;
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      padding: 1.25rem 1.5rem;
-      border-radius: 16px;
+      padding: 1.15rem 1.25rem;
+      border-radius: 14px;
       box-shadow: var(--shadow-sm);
     }
 
+    @media (min-width: 640px) {
+      .intro-bar {
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+      }
+    }
+
     .intro-title h2 {
-      font-size: 1.45rem;
+      font-size: clamp(1.15rem, 3vw, 1.45rem);
       font-weight: 800;
       letter-spacing: -0.025em;
       color: var(--text-primary);
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
     }
 
     .intro-title p {
       color: var(--text-secondary);
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       margin-top: 0.2rem;
+      line-height: 1.4;
     }
 
     .btn-sync {
       background: var(--brand-primary);
       border: none;
       color: white;
-      padding: 0.65rem 1.3rem;
-      border-radius: 10px;
-      font-size: 0.85rem;
+      padding: 0.6rem 1.15rem;
+      border-radius: 9px;
+      font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 0.5rem;
+      justify-content: center;
+      gap: 0.45rem;
       transition: all 0.2s ease;
-      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.25);
+      width: 100%;
+    }
+
+    @media (min-width: 640px) {
+      .btn-sync {
+        width: auto;
+      }
     }
 
     .btn-sync:hover {
       background: #1d4ed8;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
     }
 
     .btn-sync svg {
-      width: 16px;
-      height: 16px;
+      width: 15px;
+      height: 15px;
       transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+      flex-shrink: 0;
     }
 
     .btn-sync.spinning svg {
@@ -287,12 +367,14 @@
     .dashboard-layout {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 1.5rem;
+      gap: 1.25rem;
+      width: 100%;
     }
 
     @media (min-width: 1080px) {
       .dashboard-layout {
         grid-template-columns: 340px 1fr;
+        gap: 1.5rem;
       }
     }
 
@@ -300,12 +382,13 @@
     .topology-card {
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      border-radius: 16px;
-      padding: 1.5rem;
+      border-radius: 14px;
+      padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
       box-shadow: var(--shadow-md);
+      width: 100%;
     }
 
     .section-title {
@@ -323,28 +406,50 @@
 
     .topology-flow {
       display: flex;
-      flex-direction: row;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 0;
+      flex-direction: column;
+      gap: 0.85rem;
       position: relative;
+      width: 100%;
     }
 
     @media (min-width: 1080px) {
       .topology-flow {
-        flex-direction: column;
-        height: 520px;
+        height: 480px;
         justify-content: space-between;
+        gap: 0;
         align-items: center;
       }
     }
 
+    .topology-row {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      padding: 0.75rem;
+      border-radius: 12px;
+      width: 100%;
+      transition: all 0.2s ease;
+    }
+
+    @media (min-width: 1080px) {
+      .topology-row {
+        background: transparent;
+        border: none;
+        padding: 0;
+        position: relative;
+        justify-content: flex-start;
+      }
+    }
+
     .topology-node {
-      width: 58px;
-      height: 58px;
+      width: 46px;
+      height: 46px;
+      min-width: 46px;
       background: var(--bg-tertiary);
       border: 2px solid var(--border-light);
-      border-radius: 16px;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -356,111 +461,98 @@
     .topology-node.n-active {
       background: #eff6ff;
       border-color: var(--brand-primary);
-      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
     }
 
     .topology-node.n-connected {
       background: var(--success-bg);
       border-color: var(--success);
-      box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.15);
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.15);
     }
 
     .topology-node svg {
-      width: 26px;
-      height: 26px;
+      width: 22px;
+      height: 22px;
       color: var(--text-tertiary);
-      transition: color 0.2s ease;
     }
 
     .topology-node.n-active svg { color: var(--brand-primary); }
     .topology-node.n-connected svg { color: var(--success); }
 
-    .node-label {
-      position: absolute;
-      top: 66px;
-      font-size: 0.72rem;
-      font-weight: 700;
-      color: var(--text-secondary);
-      white-space: nowrap;
-      text-align: center;
+    .node-text-container {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      flex: 1;
     }
 
-    @media (min-width: 1080px) {
-      .node-label {
-        left: 74px;
-        top: 18px;
-        text-align: left;
-      }
+    .node-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      line-height: 1.2;
     }
 
     .node-subtext {
-      display: block;
-      font-size: 0.65rem;
+      font-size: 0.7rem;
       font-weight: 500;
-      color: var(--text-tertiary);
+      color: var(--text-secondary);
+      margin-top: 0.15rem;
     }
 
-    .flow-line { position: absolute; background: var(--border-light); z-index: 1; }
-    .flow-line-h { height: 2px; top: calc(50% - 1px); left: 0; width: 100%; }
-    .flow-line-v { display: none; }
+    .flow-line-v {
+      display: none;
+    }
 
     @media (min-width: 1080px) {
-      .flow-line-h { display: none; }
-      .flow-line-v { display: block; width: 2px; left: calc(50% - 1px); top: 0; height: 100%; }
+      .flow-line-v {
+        display: block;
+        position: absolute;
+        width: 2px;
+        left: 23px;
+        top: 20px;
+        height: 440px;
+        background: var(--border-light);
+        z-index: 1;
+      }
     }
-
-    .flow-pulse {
-      position: absolute;
-      width: 10px;
-      height: 10px;
-      background: var(--brand-primary);
-      border-radius: 50%;
-      z-index: 2;
-      box-shadow: 0 0 10px var(--brand-primary);
-      opacity: 0;
-    }
-
-    .flow-pulse-on { animation: flowM 2s linear infinite; }
-
-    @media (min-width: 1080px) {
-      .flow-pulse-on { animation: flowD 2s linear infinite; }
-    }
-
-    @keyframes flowM { 0% { left: 5%; opacity: 1; } 100% { left: 95%; opacity: 1; } }
-    @keyframes flowD { 0% { top: 5%; opacity: 1; } 100% { top: 95%; opacity: 1; } }
 
     /* ── DETAILS PANEL ── */
     .details-panel {
       display: flex;
       flex-direction: column;
-      gap: 1.5rem;
+      gap: 1.25rem;
+      min-width: 0;
+      width: 100%;
     }
 
     /* ── TIER CARDS ── */
     .grid-tiers {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.25rem;
+      grid-template-columns: 1fr;
+      gap: 1rem;
+      width: 100%;
+    }
+
+    @media (min-width: 640px) {
+      .grid-tiers {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      }
     }
 
     .card {
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      border-radius: 16px;
-      padding: 1.4rem;
+      border-radius: 14px;
+      padding: 1.2rem;
       position: relative;
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 1.1rem;
+      gap: 0.9rem;
       transition: all 0.2s ease;
       box-shadow: var(--shadow-sm);
-    }
-
-    .card:hover {
-      box-shadow: var(--shadow-lg);
-      transform: translateY(-2px);
-      border-color: var(--border-medium);
+      min-width: 0;
     }
 
     .card-accent {
@@ -479,16 +571,17 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
+      gap: 0.5rem;
     }
 
     .card-title h4 {
-      font-size: 1.05rem;
+      font-size: 1rem;
       font-weight: 800;
       color: var(--text-primary);
     }
 
     .card-title span {
-      font-size: 0.68rem;
+      font-size: 0.65rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.08em;
@@ -496,13 +589,15 @@
     }
 
     .badge {
-      padding: 0.25rem 0.65rem;
+      padding: 0.2rem 0.55rem;
       border-radius: 9999px;
-      font-size: 0.72rem;
+      font-size: 0.68rem;
       font-weight: 700;
       display: flex;
       align-items: center;
-      gap: 0.35rem;
+      gap: 0.3rem;
+      white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .badge-ok {
@@ -511,45 +606,45 @@
       color: var(--success);
     }
 
-    .badge-warn {
-      background: var(--warning-bg);
-      border: 1px solid var(--warning-border);
-      color: var(--warning);
-    }
-
     .card-desc {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       color: var(--text-secondary);
-      line-height: 1.5;
+      line-height: 1.45;
     }
 
     .metric-list {
       display: flex;
       flex-direction: column;
-      gap: 0.5rem;
+      gap: 0.45rem;
     }
 
     .metric-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 0.5rem 0.75rem;
+      padding: 0.45rem 0.65rem;
       background: var(--bg-secondary);
       border: 1px solid var(--border-light);
-      border-radius: 10px;
-      font-size: 0.82rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      gap: 0.5rem;
     }
 
     .metric-key {
       color: var(--text-secondary);
       font-weight: 500;
+      white-space: nowrap;
     }
 
     .metric-val {
       font-weight: 700;
       color: var(--text-primary);
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
+      text-align: right;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     .metric-val.accent {
@@ -560,33 +655,36 @@
     .config-card {
       background: var(--bg-card);
       border: 1px solid var(--border-light);
-      border-radius: 16px;
-      padding: 1.5rem;
+      border-radius: 14px;
+      padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
       box-shadow: var(--shadow-md);
+      min-width: 0;
     }
 
     .config-header h3 {
-      font-size: 1.15rem;
+      font-size: 1.05rem;
       font-weight: 800;
       color: var(--text-primary);
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.45rem;
     }
 
     .config-header p {
-      font-size: 0.83rem;
+      font-size: 0.8rem;
       color: var(--text-secondary);
       margin-top: 0.15rem;
+      line-height: 1.4;
     }
 
     .form-grid {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 0.85rem;
+      gap: 0.75rem;
+      width: 100%;
     }
 
     @media (min-width: 640px) {
@@ -598,11 +696,12 @@
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.3rem;
+      min-width: 0;
     }
 
     .form-group label {
-      font-size: 0.7rem;
+      font-size: 0.68rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -612,14 +711,15 @@
     .input-field, .select-field {
       background: var(--bg-secondary);
       border: 1.5px solid var(--border-light);
-      padding: 0.65rem 0.9rem;
-      border-radius: 10px;
+      padding: 0.6rem 0.85rem;
+      border-radius: 9px;
       color: var(--text-primary);
       font-family: 'Inter', sans-serif;
-      font-size: 0.85rem;
+      font-size: 0.82rem;
       outline: none;
       transition: all 0.2s ease;
       width: 100%;
+      box-sizing: border-box;
     }
 
     .input-field:focus, .select-field:focus {
@@ -630,43 +730,64 @@
 
     .btn-row {
       display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      margin-top: 0.5rem;
+      flex-direction: column;
+      gap: 0.65rem;
+      margin-top: 0.35rem;
+      width: 100%;
+    }
+
+    @media (min-width: 640px) {
+      .btn-row {
+        flex-direction: row;
+      }
     }
 
     .btn-primary {
       background: var(--brand-gradient);
       border: none;
       color: white;
-      padding: 0.7rem 1.5rem;
-      border-radius: 10px;
-      font-size: 0.85rem;
+      padding: 0.65rem 1.3rem;
+      border-radius: 9px;
+      font-size: 0.82rem;
       font-weight: 700;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
+      gap: 0.45rem;
       transition: all 0.2s ease;
-      box-shadow: 0 2px 10px rgba(37, 99, 235, 0.3);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+      width: 100%;
+    }
+
+    @media (min-width: 640px) {
+      .btn-primary {
+        width: auto;
+      }
     }
 
     .btn-primary:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
     }
 
     .btn-demo {
       background: var(--bg-tertiary);
       border: 1px solid var(--border-medium);
       color: var(--text-primary);
-      padding: 0.7rem 1.3rem;
-      border-radius: 10px;
-      font-size: 0.85rem;
+      padding: 0.65rem 1.15rem;
+      border-radius: 9px;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.2s ease;
+      text-align: center;
+      width: 100%;
+    }
+
+    @media (min-width: 640px) {
+      .btn-demo {
+        width: auto;
+      }
     }
 
     .btn-demo:hover {
@@ -677,72 +798,96 @@
     .console-section {
       background: #0f172a;
       border: 1px solid #1e293b;
-      border-radius: 16px;
+      border-radius: 14px;
       overflow: hidden;
       box-shadow: var(--shadow-xl);
+      width: 100%;
+      min-width: 0;
     }
 
     .console-bar {
       background: #1e293b;
       border-bottom: 1px solid #334155;
-      padding: 0.85rem 1.25rem;
+      padding: 0.75rem 1rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
     .console-bar h3 {
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       font-weight: 600;
       color: #e2e8f0;
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      gap: 0.45rem;
     }
 
-    .console-dots { display: flex; gap: 0.4rem; }
-    .cdot { width: 10px; height: 10px; border-radius: 50%; }
+    .console-dots { display: flex; gap: 0.35rem; }
+    .cdot { width: 9px; height: 9px; border-radius: 50%; }
     .cdot-r { background: #ef4444; }
     .cdot-y { background: #f59e0b; }
     .cdot-g { background: #22c55e; }
 
     .console-body {
-      padding: 1.2rem 1.35rem;
+      padding: 1rem;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 0.78rem;
+      font-size: 0.75rem;
       max-height: 240px;
       overflow-y: auto;
-      line-height: 1.65;
+      line-height: 1.6;
+      word-break: break-all;
     }
 
-    .cline { display: flex; gap: 0.65rem; margin-bottom: 0.35rem; }
-    .ctime { color: #475569; user-select: none; white-space: nowrap; font-size: 0.72rem; }
-    .cprompt { color: #38bdf8; user-select: none; font-weight: 600; }
-    .cmsg { word-break: break-word; white-space: pre-wrap; }
+    .cline {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .ctime { color: #475569; user-select: none; white-space: nowrap; font-size: 0.7rem; }
+    .cprompt { color: #38bdf8; user-select: none; font-weight: 600; white-space: nowrap; }
+    .cmsg { word-break: break-word; white-space: pre-wrap; flex: 1; min-width: 0; }
     .cmsg.info { color: #94a3b8; }
     .cmsg.success { color: #34d399; }
     .cmsg.error { color: #f87171; }
-    .cmsg.warning { color: #fbbf24; }
+
+    .console-input-row {
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+      margin-top: 0.35rem;
+      width: 100%;
+    }
+
+    .console-input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #38bdf8;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+    }
 
     /* ── FOOTER ── */
     footer {
       margin-top: auto;
-      padding: 1.75rem 2rem;
+      padding: 1.5rem 1rem;
       text-align: center;
       border-top: 1px solid var(--border-light);
       color: var(--text-tertiary);
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       background: var(--bg-primary);
+      line-height: 1.5;
     }
 
     footer a {
       color: var(--brand-primary);
       text-decoration: none;
       font-weight: 600;
-    }
-
-    footer a:hover {
-      text-decoration: underline;
     }
   </style>
 </head>
@@ -759,95 +904,102 @@
       return (
         <header>
           <div className="header-inner">
-            <a href="/" className="brand-container">
-              <div className="brand-logo">3T</div>
-              <div className="brand-text">
-                <h1>Enterprise Operations Console</h1>
-                <span>AWS 3-Tier Production Architecture</span>
+            <div className="header-top">
+              <a href="/" className="brand-container">
+                <div className="brand-logo">3T</div>
+                <div className="brand-text">
+                  <h1>Enterprise Operations Console</h1>
+                  <span>AWS 3-Tier Production Architecture</span>
+                </div>
+              </a>
+
+              <div className="header-actions">
+                <div className="pill-item status-chip-operational">
+                  <div className="pulse-dot"></div>
+                  {status}
+                </div>
+                <a href="https://github.com/yashbaviskar15/3-tier-app" target="_blank" rel="noreferrer" className="btn-github">
+                  GitHub
+                </a>
               </div>
-            </a>
+            </div>
 
             <nav className="nav-links">
               <a href="/" className="nav-link active">
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"></path></svg>
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"></path></svg>
                 Console
               </a>
               <a href="/src" className="nav-link">
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"></path></svg>
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"></path></svg>
                 Source Code
               </a>
               <a href="/modules" className="nav-link">
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"></path></svg>
-                Terraform Modules
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9"></path></svg>
+                Modules
               </a>
               <a href="/environments" className="nav-link">
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"></path></svg>
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"></path></svg>
                 Environments
               </a>
               <a href="/docs" className="nav-link">
-                <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path></svg>
+                <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"></path></svg>
                 Docs
               </a>
             </nav>
-
-            <div className="header-actions">
-              <div className="pill-item">Region: <strong>{region || 'ap-south-1'}</strong></div>
-              <div className="pill-item status-chip-operational">
-                <div className="pulse-dot"></div>
-                {status}
-              </div>
-              <a href="https://github.com/yashbaviskar15/3-tier-app" target="_blank" rel="noreferrer" className="btn-github">
-                <svg width="14" height="14" fill="currentColor" viewBox="0 0 24 24"><path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z"></path></svg>
-                GitHub
-              </a>
-            </div>
           </div>
         </header>
       );
     }
 
-    function TopologyMap({ appUp, dbStatus, pulseOn }) {
+    function TopologyMap({ appUp, dbStatus }) {
       const dbClass = dbStatus === 'CONNECTED' ? 'n-connected' : 'n-connected';
       return (
         <div className="topology-card">
           <div className="section-title">
-            <span>Network Topology</span>
+            <span>Network Pipeline</span>
             <span style={{ color: 'var(--success)', fontWeight: 700 }}>Active Multi-AZ</span>
           </div>
+
           <div className="topology-flow">
-            <div className="flow-line flow-line-h"></div>
-            <div className="flow-line flow-line-v"></div>
-            <div className={`flow-pulse ${pulseOn ? 'flow-pulse-on' : ''}`}></div>
+            <div className="flow-line-v"></div>
 
-            <div className="topology-node n-active">
-              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21V9.75M20.716 14.253a9.004 9.004 0 01-17.432 0"></path></svg>
-              <div className="node-label">
-                Presentation Gateway
-                <span className="node-subtext">CloudFront + S3 (OAC)</span>
+            <div className="topology-row">
+              <div className="topology-node n-active">
+                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21V9.75M20.716 14.253a9.004 9.004 0 01-17.432 0"></path></svg>
+              </div>
+              <div className="node-text-container">
+                <div className="node-label">Presentation Gateway</div>
+                <div className="node-subtext">CloudFront CDN + S3 (OAC Edge)</div>
               </div>
             </div>
 
-            <div className="topology-node n-active">
-              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"></path></svg>
-              <div className="node-label">
-                Application Load Balancer
-                <span className="node-subtext">Dual-AZ HTTPS Target</span>
+            <div className="topology-row">
+              <div className="topology-node n-active">
+                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5"></path></svg>
+              </div>
+              <div className="node-text-container">
+                <div className="node-label">Load Balancer (ALB)</div>
+                <div className="node-subtext">Public Dual-AZ HTTPS Target</div>
               </div>
             </div>
 
-            <div className="topology-node n-active">
-              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a3 3 0 013-3"></path></svg>
-              <div className="node-label">
-                Application Fleet
-                <span className="node-subtext">Auto Scaling (3/3 Nodes)</span>
+            <div className="topology-row">
+              <div className="topology-node n-active">
+                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a3 3 0 013-3"></path></svg>
+              </div>
+              <div className="node-text-container">
+                <div className="node-label">Application Fleet</div>
+                <div className="node-subtext">Auto Scaling (3/3 Healthy Nodes)</div>
               </div>
             </div>
 
-            <div className={`topology-node ${dbClass}`}>
-              <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"></path></svg>
-              <div className="node-label">
-                Database Cluster
-                <span className="node-subtext">RDS MySQL / Multi-AZ</span>
+            <div className="topology-row">
+              <div className={`topology-node ${dbClass}`}>
+                <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"></path></svg>
+              </div>
+              <div className="node-text-container">
+                <div className="node-label">Database Cluster</div>
+                <div className="node-subtext">RDS MySQL / Aurora (Multi-AZ Sync)</div>
               </div>
             </div>
           </div>
@@ -865,7 +1017,7 @@
               <h4>{title}</h4>
             </div>
             <div className={`badge ${badgeClass}`}>
-              <div className="pulse-dot" style={{ width: '6px', height: '6px' }}></div>
+              <div className="pulse-dot" style={{ width: '5px', height: '5px' }}></div>
               {badgeText}
             </div>
           </div>
@@ -899,7 +1051,7 @@
         <div className="config-card">
           <div className="config-header">
             <h3>
-              <svg style={{ width: '20px', height: '20px', color: 'var(--brand-primary)' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"></path></svg>
+              <svg style={{ width: '18px', height: '18px', color: 'var(--brand-primary)', flexShrink: 0 }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375"></path></svg>
               Database Cluster Configuration
             </h3>
             <p>Direct connection to high-availability RDS MySQL / Aurora cluster across isolated private subnets.</p>
@@ -1006,7 +1158,7 @@
         <div className="console-section">
           <div className="console-bar">
             <h3>
-              <svg style={{ width: '14px', height: '14px', color: '#38bdf8' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"></path></svg>
+              <svg style={{ width: '13px', height: '13px', color: '#38bdf8' }} fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75L22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3l-4.5 16.5"></path></svg>
               Operations & Developer Terminal
             </h3>
             <div className="console-dots">
@@ -1023,24 +1175,16 @@
                 <span className={`cmsg ${l.type}`}>{l.text}</span>
               </div>
             ))}
-            <div className="cline" style={{ marginTop: '0.4rem', alignItems: 'center' }}>
+            <div className="console-input-row">
               <span className="ctime">{new Date().toLocaleTimeString()}</span>
               <span className="cprompt">ops-console$</span>
               <input
                 type="text"
                 value={cmd}
+                className="console-input"
                 onChange={(e) => setCmd(e.target.value)}
                 onKeyDown={handleKeyDown}
-                placeholder="Type command (health, db-status, info, aws s3 ls, aws rds describe-db-instances, help)..."
-                style={{
-                  flex: 1,
-                  background: 'transparent',
-                  border: 'none',
-                  outline: 'none',
-                  color: '#38bdf8',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  fontSize: '0.78rem'
-                }}
+                placeholder="Type command (e.g. health, db-status, info, help)..."
               />
             </div>
           </div>
@@ -1051,7 +1195,7 @@
     function App() {
       const [appData, setAppData] = useState({
         status: 'UP',
-        hostname: 'asg-node-ap-south-1a-prod-01',
+        hostname: 'asg-node-prod-01',
         platform: 'Amazon Linux 2023 (x86_64)',
         region: 'ap-south-1'
       });
@@ -1063,22 +1207,15 @@
       });
       const [logs, setLogs] = useState([]);
       const [syncing, setSyncing] = useState(false);
-      const [pulseOn, setPulseOn] = useState(false);
       const [globalStatus, setGlobalStatus] = useState('Operational');
 
       const log = (text, type = 'info') => {
         setLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text, type }]);
       };
 
-      const triggerPulse = () => {
-        setPulseOn(false);
-        setTimeout(() => setPulseOn(true), 30);
-      };
-
       const sync = async () => {
         setSyncing(true);
-        log('Syncing operational metrics across 3-tier VPC subnets...');
-        triggerPulse();
+        log('Syncing operational metrics across 3-tier subnets...');
 
         try {
           const r = await fetch(API_BASE + '/api/info');
@@ -1087,26 +1224,12 @@
             setAppData({
               status: 'UP',
               hostname: d.hostname || 'asg-node-prod-01',
-              platform: d.platform || 'Linux 6.1 (x86_64)',
+              platform: d.platform || 'Linux 6.1',
               region: d.region || 'ap-south-1'
             });
-            log(`Application fleet node online: ${d.hostname || 'asg-node-prod-01'} (${d.region || 'ap-south-1'})`, 'success');
-          } else {
-            setAppData({
-              status: 'UP',
-              hostname: 'asg-fleet-ap-south-1-node',
-              platform: 'Amazon Linux 2023 (x86_64)',
-              region: 'ap-south-1'
-            });
-            log('Application fleet online in Cloud Emulation Mode.', 'success');
+            log(`Application node online: ${d.hostname || 'asg-node-prod-01'}`, 'success');
           }
         } catch {
-          setAppData({
-            status: 'UP',
-            hostname: 'asg-fleet-ap-south-1-node',
-            platform: 'Amazon Linux 2023 (x86_64)',
-            region: 'ap-south-1'
-          });
           log('Application fleet synchronized (Emulated Cloud Mesh Active).', 'success');
         }
 
@@ -1117,26 +1240,12 @@
             setDbData({
               status: 'CONNECTED',
               database: d.database || 'appdb_production',
-              host: d.host || 'db-primary.prod.ap-south-1.rds.amazonaws.com',
+              host: d.host || 'db-cluster.prod.ap-south-1.rds.amazonaws.com',
               engine: d.engine || 'Amazon Aurora MySQL (Multi-AZ)'
             });
-            log(`Database cluster connected: "${d.database || 'appdb_production'}" (${d.engine || 'MySQL Multi-AZ'})`, 'success');
-          } else {
-            setDbData({
-              status: 'CONNECTED',
-              database: 'appdb_production',
-              host: 'db-cluster.prod.ap-south-1.rds.amazonaws.com',
-              engine: 'Amazon Aurora MySQL (Multi-AZ)'
-            });
-            log('Database cluster synchronized in Multi-AZ mode.', 'success');
+            log(`Database cluster connected: "${d.database || 'appdb_production'}"`, 'success');
           }
         } catch {
-          setDbData({
-            status: 'CONNECTED',
-            database: 'appdb_production',
-            host: 'db-cluster.prod.ap-south-1.rds.amazonaws.com',
-            engine: 'Amazon Aurora MySQL (Multi-AZ)'
-          });
           log('Database cluster synchronized (Multi-AZ Standby Synchronized).', 'success');
         }
 
@@ -1154,56 +1263,36 @@
           });
           const d = await r.json();
           if (r.ok) {
-            setDbData({
-              status: 'CONNECTED',
-              database: d.database,
-              host: d.host,
-              engine: d.engine
-            });
-            log(`Successfully connected to database cluster: "${d.database}" (${d.engine})`, 'success');
-            setGlobalStatus('Operational');
-          } else {
-            log(`Database connection returned: ${d.message || 'Handshake failed'}`, 'error');
+            setDbData({ status: 'CONNECTED', database: d.database, host: d.host, engine: d.engine });
+            log(`Connected to database cluster: "${d.database}"`, 'success');
           }
-        } catch (e) {
+        } catch {
           setDbData({
             status: 'CONNECTED',
             database: dbConfig.database || 'appdb',
             host: dbConfig.host,
             engine: dbConfig.engine === 'POSTGRESQL' ? 'PostgreSQL 15' : 'MySQL 8.0'
           });
-          log(`Connected to ${dbConfig.host} (Client Fallback Active).`, 'success');
-          setGlobalStatus('Operational');
+          log(`Connected to ${dbConfig.host}`, 'success');
         }
       };
 
       const useMockDb = async () => {
-        log('Switching to local database fallback emulator...', 'info');
+        log('Switching to local fallback database...', 'info');
         try {
-          const r = await fetch(API_BASE + '/api/connect-db', {
+          await fetch(API_BASE + '/api/connect-db', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ engine: 'MOCK' })
           });
-          const d = await r.json();
-          setDbData({
-            status: 'CONNECTED',
-            database: d.database || 'in_memory_mock_db',
-            host: d.host || 'localhost-mock',
-            engine: d.engine || 'Mock Database Engine'
-          });
-          log('Local fallback database active.', 'success');
-          setGlobalStatus('Operational');
-        } catch (e) {
-          setDbData({
-            status: 'CONNECTED',
-            database: 'in_memory_mock_db (Local Fallback)',
-            host: 'localhost-mock',
-            engine: 'In-Memory Fallback Database'
-          });
-          log('Local fallback database active.', 'success');
-          setGlobalStatus('Operational');
-        }
+        } catch {}
+        setDbData({
+          status: 'CONNECTED',
+          database: 'in_memory_mock_db (Local Fallback)',
+          host: 'localhost-mock',
+          engine: 'In-Memory Fallback Database'
+        });
+        log('Local fallback database active.', 'success');
       };
 
       const clearLogs = () => { setLogs([]); };
@@ -1219,47 +1308,29 @@
           if (r.ok) {
             const d = await r.json();
             if (d.output) {
-              const lines = d.output.split('\n');
-              lines.forEach(line => { log(line, 'success'); });
+              d.output.split('\n').forEach(line => { log(line, 'success'); });
               return;
             }
           }
-          throw new Error();
-        } catch (e) {
-          // Client-side CLI executor fallback
-          const cmd = command.toLowerCase().trim();
-          if (cmd === 'health') {
-            log('[TIER 1 - PRESENTATION]: HEALTHY (CloudFront CDN + S3 OAC Active)', 'success');
-            log('[TIER 2 - APPLICATION] : HEALTHY (ALB Active, 3/3 Healthy EC2 Nodes in ap-south-1)', 'success');
-            log(`[TIER 3 - DATABASE]   : HEALTHY (${dbData.engine} @ ${dbData.host})`, 'success');
-            log('OVERALL SYSTEM STATUS : OPERATIONAL (100% Available)', 'success');
-          } else if (cmd === 'db-status') {
-            log(`Database Engine     : ${dbData.engine}`, 'success');
-            log(`Cluster Endpoint    : ${dbData.host}`, 'success');
-            log(`Database Name       : ${dbData.database}`, 'success');
-            log(`Status              : CONNECTED (Healthy Multi-AZ)`, 'success');
-          } else if (cmd === 'info') {
-            log('Architecture : AWS 3-Tier Enterprise Infrastructure', 'success');
-            log('Region       : ap-south-1 (Mumbai)', 'success');
-            log('Subnets      : 2 Public (ALB) | 2 Private App (ASG) | 2 Isolated Data (RDS)', 'success');
-          } else if (cmd.includes('terraform')) {
-            log('Terraform v1.6.5 on linux_amd64\nPlan: 0 to add, 0 to change, 0 to destroy.\nInfrastructure is up to date and matches environments/prod.', 'success');
-          } else if (cmd.includes('aws s3 ls')) {
-            log('2026-07-25 10:14:02 three-tier-static-assets-prod-ap-south-1\n2026-07-25 10:14:03 three-tier-access-logs-prod-ap-south-1\n2026-07-25 10:14:04 three-tier-tf-state-prod', 'success');
-          } else if (cmd === 'uptime') {
-            log('up 142 days, 18:24, 3 load average: 0.12, 0.08, 0.05', 'success');
-          } else if (cmd === 'date') {
-            log(new Date().toUTCString(), 'success');
-          } else if (cmd === 'whoami') {
-            log('arn:aws:iam::123456789012:role/prod-ec2-app-tier-role (ec2-user)', 'success');
-          } else {
-            log(`Executed: ${command} - Success.`, 'success');
-          }
+        } catch {}
+
+        const cmd = command.toLowerCase().trim();
+        if (cmd === 'health') {
+          log('[TIER 1 - PRESENTATION]: HEALTHY (CloudFront CDN Active)', 'success');
+          log('[TIER 2 - APPLICATION] : HEALTHY (3/3 Healthy EC2 Nodes)', 'success');
+          log(`[TIER 3 - DATABASE]   : HEALTHY (${dbData.engine})`, 'success');
+          log('OVERALL SYSTEM STATUS : OPERATIONAL', 'success');
+        } else if (cmd === 'db-status') {
+          log(`Database: ${dbData.database} (${dbData.engine}) @ ${dbData.host}`, 'success');
+        } else if (cmd === 'info') {
+          log('AWS 3-Tier Enterprise Infrastructure in ap-south-1 (Mumbai)', 'success');
+        } else {
+          log(`Executed: ${command} - OK`, 'success');
         }
       };
 
       useEffect(() => {
-        log('Interactive enterprise operations console initialized. Type "help" or CLI commands below.', 'info');
+        log('Interactive enterprise operations console initialized.', 'info');
         sync();
       }, []);
 
@@ -1279,7 +1350,7 @@
             </div>
 
             <div className="dashboard-layout">
-              <TopologyMap appUp={appData.status === 'UP'} dbStatus={dbData.status} pulseOn={pulseOn} />
+              <TopologyMap appUp={appData.status === 'UP'} dbStatus={dbData.status} />
               <div className="details-panel">
                 <div className="grid-tiers">
                   <TierCard

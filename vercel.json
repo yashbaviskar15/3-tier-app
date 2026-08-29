@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "rewrites": [
+    { "source": "/api/(.*)", "destination": "/api/index.js" },
+    { "source": "/src", "destination": "/src/index.html" },
+    { "source": "/src/(.*)", "destination": "/src/index.html" },
+    { "source": "/modules", "destination": "/modules/index.html" },
+    { "source": "/modules/(.*)", "destination": "/modules/index.html" },
+    { "source": "/environments", "destination": "/environments/index.html" },
+    { "source": "/environments/(.*)", "destination": "/environments/index.html" },
+    { "source": "/docs", "destination": "/docs/index.html" },
+    { "source": "/docs/(.*)", "destination": "/docs/index.html" },
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}

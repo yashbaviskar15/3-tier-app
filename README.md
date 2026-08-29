@@ -4,8 +4,21 @@
 ![AWS](https://img.shields.io/badge/AWS-Cloud-FF9900?logo=amazonaws&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-green.svg)
 ![IaC](https://img.shields.io/badge/IaC-Production_Grade-blue)
+![Status](https://img.shields.io/badge/Status-100%25_Operational-success)
 
 A **production-grade, enterprise-scale** AWS Three-Tier Web Application built entirely with modular Terraform. Features VPC network segmentation, Auto Scaling compute, Multi-AZ RDS database, CloudFront CDN, and full observability — deployed across dev, staging, and production environments.
+
+---
+
+## 🌐 Live Interactive Portals
+
+| Portal | Live URL | Description |
+|---|---|---|
+| **Enterprise Operations Console** | [three-tier-app.vercel.app](https://three-tier-app.vercel.app/) | Production operations console with real-time metrics, topology flow & cloud CLI |
+| **Source Code & API Sandbox** | [three-tier-app-src.vercel.app](https://three-tier-app-src.vercel.app/) | Interactive Node.js backend explorer, Docker manifests & live API tester |
+| **Terraform Modules Visualizer** | [three-tier-app-modules.vercel.app](https://three-tier-app-modules.vercel.app/) | Visual catalog of all 11 Terraform modules with HCL code viewers |
+| **Multi-Environment Dashboard** | [three-tier-app-environments.vercel.app](https://three-tier-app-environments.vercel.app/) | Dev vs Staging vs Prod parameter matrices and FinOps cost comparison |
+| **Documentation Hub** | [three-tier-app-docs.vercel.app](https://three-tier-app-docs.vercel.app/) | Complete knowledge base covering architecture, troubleshooting, security & interview Q&A |
 
 ---
 

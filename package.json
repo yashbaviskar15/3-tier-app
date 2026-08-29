@@ -1,0 +1,30 @@
+{
+  "name": "aws-three-tier-web-application",
+  "version": "1.0.0",
+  "description": "Production-grade enterprise AWS Three-Tier Web Application deployed with Terraform, Docker, and Vercel",
+  "main": "api/index.js",
+  "scripts": {
+    "start": "node src/app/index.js",
+    "dev": "node src/app/index.js"
+  },
+  "keywords": [
+    "aws",
+    "three-tier-architecture",
+    "terraform",
+    "react",
+    "nodejs",
+    "express",
+    "mysql",
+    "cloudfront",
+    "alb",
+    "asg",
+    "rds"
+  ],
+  "author": "Yash Baviskar",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.19.2",
+    "mysql2": "^3.9.7",
+    "pg": "^8.12.0"
+  }
+}

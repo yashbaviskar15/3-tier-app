@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Terraform Modules Visualizer • AWS 3-Tier Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: #ffffff;
+      --border-light: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #94a3b8;
+      --brand-primary: #2563eb;
+      --brand-gradient: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+      --accent-purple: #7c3aed;
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --success-border: #a7f3d0;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-light);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: var(--brand-gradient);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: white;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--bg-tertiary);
+      padding: 0.25rem 0.35rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+    }
+
+    .nav-link {
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .nav-link.active {
+      background: var(--bg-primary);
+      color: var(--brand-primary);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .pill-item {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-light);
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .status-chip-operational {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .btn-github {
+      background: #0f172a;
+      color: white;
+      padding: 0.45rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1440px;
+      width: 100%;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .hero-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hero-banner h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .hero-banner p {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      margin-top: 0.25rem;
+    }
+
+    .modules-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 900px) {
+      .modules-layout {
+        grid-template-columns: 280px 1fr;
+      }
+    }
+
+    .module-list {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+      box-shadow: var(--shadow-sm);
+      height: fit-content;
+    }
+
+    .module-item {
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      transition: all 0.15s ease;
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .module-item:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+
+    .module-item.active {
+      background: #eff6ff;
+      color: var(--brand-primary);
+      font-weight: 700;
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    .module-badge {
+      background: var(--bg-tertiary);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-family: 'Inter', sans-serif;
+    }
+
+    .module-item.active .module-badge {
+      background: var(--brand-primary);
+      color: white;
+    }
+
+    .detail-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 1.75rem;
+      box-shadow: var(--shadow-md);
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    .detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 1rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .detail-header h3 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-primary);
+    }
+
+    .detail-header p {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      margin-top: 0.25rem;
+    }
+
+    .features-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .feature-tag {
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #334155;
+    }
+
+    .code-tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 0.5rem;
+    }
+
+    .code-tab {
+      padding: 0.45rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-light);
+      color: var(--text-secondary);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .code-tab.active {
+      background: #eff6ff;
+      border-color: var(--brand-primary);
+      color: var(--brand-primary);
+      font-weight: 700;
+    }
+
+    .code-box {
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 12px;
+      padding: 1.25rem;
+      color: #e2e8f0;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      line-height: 1.6;
+      max-height: 480px;
+      overflow: auto;
+      white-space: pre;
+    }
+
+    .btn-copy {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-medium);
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      color: var(--text-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 1.75rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border-light);
+      color: var(--text-tertiary);
+      font-size: 0.82rem;
+      background: var(--bg-primary);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState } = React;
+
+    const modulesData = {
+      'vpc': {
+        title: 'modules/vpc',
+        desc: 'Production-ready VPC with 3-tier subnets (Public, Private App, Isolated Private Data), Multi-AZ NAT Gateways, Route Tables, and VPC Flow Logs.',
+        tags: ['VPC Segmentation', 'Multi-AZ NAT', 'Flow Logs', 'Least-Privilege Routing'],
+        code: `resource "aws_vpc" "main" {
+  cidr_block           = var.vpc_cidr
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags = merge(var.tags, { Name = "\${var.name_prefix}-vpc" })
+}
+
+# Public Subnets for Internet-Facing ALB
+resource "aws_subnet" "public" {
+  count                   = length(var.public_subnet_cidrs)
+  vpc_id                  = aws_vpc.main.id
+  cidr_block              = var.public_subnet_cidrs[count.index]
+  availability_zone       = var.availability_zones[count.index]
+  map_public_ip_on_launch = true
+}
+
+# Private Application Fleet Subnets
+resource "aws_subnet" "private_app" {
+  count             = length(var.private_app_subnet_cidrs)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_app_subnet_cidrs[count.index]
+  availability_zone = var.availability_zones[count.index]
+}
+
+# Isolated Private Database Subnets (No direct NAT route)
+resource "aws_subnet" "private_data" {
+  count             = length(var.private_data_subnet_cidrs)
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_data_subnet_cidrs[count.index]
+  availability_zone = var.availability_zones[count.index]
+}`
+      },
+      'security_groups': {
+        title: 'modules/security_groups',
+        desc: 'Chained least-privilege security group architecture: ALB SG allows 443 -> App SG allows Port 8080 ONLY from ALB -> RDS SG allows Port 3306 ONLY from App SG.',
+        tags: ['Chained SGs', 'No Open Ports', 'Port 8080 App', 'Port 3306 DB'],
+        code: `resource "aws_security_group" "alb" {
+  name        = "\${var.name_prefix}-alb-sg"
+  description = "Allow inbound HTTPS from Internet"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "app" {
+  name        = "\${var.name_prefix}-app-sg"
+  description = "Allow inbound traffic ONLY from ALB security group"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port       = var.app_port
+    to_port         = var.app_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
+  }
+}
+
+resource "aws_security_group" "rds" {
+  name        = "\${var.name_prefix}-rds-sg"
+  description = "Allow DB traffic ONLY from App Fleet security group"
+  vpc_id      = var.vpc_id
+
+  ingress {
+    from_port       = var.db_port
+    to_port         = var.db_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.app.id]
+  }
+}`
+      },
+      'alb': {
+        title: 'modules/alb',
+        desc: 'Internet-facing Application Load Balancer with HTTPS listener, HTTP to HTTPS redirect, Target Group health checks, and access logging.',
+        tags: ['ALB', 'Target Group', 'HTTPS Redirect', 'Health Checks'],
+        code: `resource "aws_lb" "main" {
+  name               = "\${var.name_prefix}-alb"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [var.security_group_id]
+  subnets            = var.public_subnet_ids
+}
+
+resource "aws_lb_target_group" "app" {
+  name     = "\${var.name_prefix}-tg"
+  port     = var.target_port
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+
+  health_check {
+    path                = var.health_check_path
+    matcher             = "200"
+    interval            = 15
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+  }
+}`
+      },
+      'asg': {
+        title: 'modules/asg',
+        desc: 'Auto Scaling Group with Launch Template, dynamic CPU & ALB Request Target Tracking scaling policies, and instance refresh.',
+        tags: ['Auto Scaling', 'Launch Template', 'Target Tracking', 'IMDSv2 Enforced'],
+        code: `resource "aws_launch_template" "app" {
+  name_prefix   = "\${var.name_prefix}-lt-"
+  image_id      = var.ami_id
+  instance_type = var.instance_type
+  user_data     = var.user_data_base64
+
+  iam_instance_profile {
+    name = var.instance_profile_name
+  }
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required" # IMDSv2 enforced
+    http_put_response_hop_limit = 1
+  }
+}
+
+resource "aws_autoscaling_group" "app" {
+  name_prefix         = "\${var.name_prefix}-asg-"
+  vpc_zone_identifier = var.private_subnet_ids
+  target_group_arns   = [var.target_group_arn]
+  min_size            = var.min_size
+  max_size            = var.max_size
+  desired_capacity    = var.desired_capacity
+}`
+      },
+      'rds': {
+        title: 'modules/rds',
+        desc: 'Amazon RDS MySQL Multi-AZ Cluster with automated KMS encryption, Secrets Manager credential rotation, and Subnet Groups.',
+        tags: ['RDS MySQL', 'Multi-AZ', 'KMS Encrypted', 'Secrets Manager'],
+        code: `resource "aws_db_instance" "main" {
+  identifier           = "\${var.name_prefix}-db"
+  allocated_storage    = var.allocated_storage
+  engine               = "mysql"
+  engine_version       = "8.0.35"
+  instance_class       = var.instance_class
+  multi_az             = var.multi_az
+  db_subnet_group_name = aws_db_subnet_group.main.name
+  storage_encrypted    = true
+  kms_key_id          = var.kms_key_arn
+  username             = var.db_username
+  password             = var.db_password
+}`
+      },
+      'cloudfront': {
+        title: 'modules/cloudfront',
+        desc: 'CloudFront Global Edge CDN distribution with Origin Access Control (OAC) for S3 and custom origin forwarding for ALB dynamic /api/* routes.',
+        tags: ['CloudFront CDN', 'Origin Access Control', 'Dual-Origin', 'TLS 1.3'],
+        code: `resource "aws_cloudfront_distribution" "main" {
+  enabled             = true
+  is_ipv6_enabled     = true
+  default_root_object = "index.html"
+
+  origin {
+    domain_name              = var.s3_bucket_domain_name
+    origin_id                = "S3Origin"
+    origin_access_control_id = aws_cloudfront_origin_access_control.main.id
+  }
+
+  origin {
+    domain_name = var.alb_dns_name
+    origin_id   = "ALBOrigin"
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+}`
+      },
+      'cloudwatch': {
+        title: 'modules/cloudwatch',
+        desc: 'Full observability stack: CloudWatch Dashboard, CPU/5xx/Storage Metric Alarms, Log Groups, and SNS notification topic.',
+        tags: ['CloudWatch Dashboards', 'Metric Alarms', 'Log Groups', 'SNS Alerts'],
+        code: `resource "aws_cloudwatch_metric_alarm" "high_cpu" {
+  alarm_name          = "\${var.name_prefix}-high-cpu-alarm"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  evaluation_periods  = 2
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/EC2"
+  period              = 60
+  statistic           = "Average"
+  threshold           = 80
+  alarm_actions       = [aws_sns_topic.alerts.arn]
+}`
+      },
+      'iam': {
+        title: 'modules/iam',
+        desc: 'IAM EC2 Instance Role with SSM Session Manager, CloudWatch agent logging, S3 read, and Secrets Manager read permissions.',
+        tags: ['IAM Role', 'SSM Session Manager', 'No SSH Key Required', 'Least Privilege'],
+        code: `resource "aws_iam_role" "app" {
+  name = "\${var.name_prefix}-ec2-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
+      Principal = { Service = "ec2.amazonaws.com" }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ssm" {
+  role       = aws_iam_role.app.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}`
+      },
+      'acm': {
+        title: 'modules/acm',
+        desc: 'AWS Certificate Manager SSL/TLS certificate management with automated Route53 DNS validation.',
+        tags: ['ACM', 'SSL/TLS', 'DNS Validation'],
+        code: `resource "aws_acm_certificate" "main" {
+  domain_name       = var.domain_name
+  validation_method = "DNS"
+  tags              = var.tags
+  lifecycle { create_before_destroy = true }
+}`
+      },
+      's3': {
+        title: 'modules/s3',
+        desc: 'Encrypted S3 bucket for CloudFront static asset hosting with Origin Access Control (OAC) policy and access logs bucket.',
+        tags: ['S3', 'Encrypted', 'OAC Policy', 'Access Logging'],
+        code: `resource "aws_s3_bucket" "static" {
+  bucket = "\${var.name_prefix}-static-assets"
+}
+
+resource "aws_s3_bucket_server_side_encryption_configuration" "static" {
+  bucket = aws_s3_bucket.static.id
+  rule { apply_server_side_encryption_by_default { sse_algorithm = "AES256" } }
+}`
+      },
+      'route53': {
+        title: 'modules/route53',
+        desc: 'Route53 DNS Alias A and AAAA records pointing apex and subdomains to CloudFront CDN distribution.',
+        tags: ['Route 53', 'Alias Record', 'IPv6 AAAA', 'Health Checked'],
+        code: `resource "aws_route53_record" "apex" {
+  zone_id = var.hosted_zone_id
+  name    = var.domain_name
+  type    = "A"
+  alias {
+    name                   = var.target_domain_name
+    zone_id                = var.target_zone_id
+    evaluate_target_health = true
+  }
+}`
+      }
+    };
+
+    function App() {
+      const [selectedModule, setSelectedModule] = useState('vpc');
+      const [copied, setCopied] = useState(false);
+
+      const mod = modulesData[selectedModule];
+
+      const copyCode = () => {
+        navigator.clipboard.writeText(mod.code);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      };
+
+      return (
+        <React.Fragment>
+          <header>
+            <div className="header-inner">
+              <a href="/" className="brand-container">
+                <div className="brand-logo">3T</div>
+                <div className="brand-text">
+                  <h1>Terraform Modules Visualizer</h1>
+                  <span>AWS 3-Tier Modular Infrastructure</span>
+                </div>
+              </a>
+
+              <nav className="nav-links">
+                <a href="/" className="nav-link">Console</a>
+                <a href="/src" className="nav-link">Source Code</a>
+                <a href="/modules" className="nav-link active">Terraform Modules</a>
+                <a href="/environments" className="nav-link">Environments</a>
+                <a href="/docs" className="nav-link">Docs</a>
+              </nav>
+
+              <div className="header-actions">
+                <div className="pill-item status-chip-operational">
+                  11 Modules Loaded
+                </div>
+                <a href="https://github.com/yashbaviskar15/3-tier-app/tree/main/modules" target="_blank" rel="noreferrer" className="btn-github">
+                  GitHub /modules
+                </a>
+              </div>
+            </div>
+          </header>
+
+          <main>
+            <div className="hero-banner">
+              <h2>Terraform Architecture Modules</h2>
+              <p>Explore production Terraform modules implementing multi-tier VPC, least-privilege security groups, auto-scaling compute, RDS Multi-AZ, and CloudFront CDN.</p>
+            </div>
+
+            <div className="modules-layout">
+              <div className="module-list">
+                {Object.keys(modulesData).map(m => (
+                  <div
+                    key={m}
+                    className={`module-item ${selectedModule === m ? 'active' : ''}`}
+                    onClick={() => setSelectedModule(m)}
+                  >
+                    <span>{m}</span>
+                    <span className="module-badge">.tf</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="detail-card">
+                <div className="detail-header">
+                  <div>
+                    <h3>{mod.title}</h3>
+                    <p>{mod.desc}</p>
+                    <div className="features-list">
+                      {mod.tags.map((t, i) => (
+                        <span className="feature-tag" key={i}>✓ {t}</span>
+                      ))}
+                    </div>
+                  </div>
+                  <button className="btn-copy" onClick={copyCode}>
+                    {copied ? '✓ Copied' : 'Copy HCL'}
+                  </button>
+                </div>
+
+                <div className="code-tabs">
+                  <div className="code-tab active">main.tf</div>
+                  <div className="code-tab">variables.tf</div>
+                  <div className="code-tab">outputs.tf</div>
+                </div>
+
+                <div className="code-box">
+                  {mod.code}
+                </div>
+              </div>
+            </div>
+          </main>
+
+          <footer>
+            AWS Three-Tier Web Application &bull; <a href="https://github.com/yashbaviskar15/3-tier-app" target="_blank" rel="noreferrer">yashbaviskar15/3-tier-app</a>
+          </footer>
+        </React.Fragment>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

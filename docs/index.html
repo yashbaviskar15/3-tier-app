@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation & Knowledge Base • AWS 3-Tier Architecture</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8fafc;
+      --bg-tertiary: #f1f5f9;
+      --bg-card: #ffffff;
+      --border-light: #e2e8f0;
+      --border-medium: #cbd5e1;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-tertiary: #94a3b8;
+      --brand-primary: #2563eb;
+      --brand-gradient: linear-gradient(135deg, #2563eb 0%, #4f46e5 100%);
+      --success: #059669;
+      --success-bg: #ecfdf5;
+      --success-border: #a7f3d0;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-light);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .header-inner {
+      max-width: 1440px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    .brand-container {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      text-decoration: none;
+    }
+
+    .brand-logo {
+      width: 42px;
+      height: 42px;
+      background: var(--brand-gradient);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: white;
+      font-size: 0.95rem;
+      box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
+    }
+
+    .brand-text h1 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-text span {
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+      background: var(--bg-tertiary);
+      padding: 0.25rem 0.35rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-light);
+    }
+
+    .nav-link {
+      padding: 0.45rem 0.9rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      text-decoration: none;
+      transition: all 0.15s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .nav-link:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.6);
+    }
+
+    .nav-link.active {
+      background: var(--bg-primary);
+      color: var(--brand-primary);
+      box-shadow: var(--shadow-sm);
+      font-weight: 700;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .pill-item {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-light);
+      padding: 0.4rem 0.85rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .status-chip-operational {
+      background: var(--success-bg);
+      border: 1px solid var(--success-border);
+      color: var(--success);
+      font-weight: 700;
+    }
+
+    .btn-github {
+      background: #0f172a;
+      color: white;
+      padding: 0.45rem 0.9rem;
+      border-radius: 9999px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    main {
+      flex: 1;
+      max-width: 1440px;
+      width: 100%;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .hero-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 1.5rem 1.75rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .hero-banner h2 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .hero-banner p {
+      color: var(--text-secondary);
+      font-size: 0.88rem;
+      margin-top: 0.25rem;
+    }
+
+    .docs-layout {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    @media (min-width: 900px) {
+      .docs-layout {
+        grid-template-columns: 300px 1fr;
+      }
+    }
+
+    .docs-sidebar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      box-shadow: var(--shadow-sm);
+      height: fit-content;
+    }
+
+    .search-input {
+      background: var(--bg-secondary);
+      border: 1.5px solid var(--border-light);
+      padding: 0.55rem 0.85rem;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+    .search-input:focus {
+      border-color: var(--brand-primary);
+    }
+
+    .doc-nav-item {
+      padding: 0.65rem 0.9rem;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      transition: all 0.15s ease;
+      border: 1px solid transparent;
+    }
+
+    .doc-nav-item:hover {
+      background: var(--bg-tertiary);
+    }
+
+    .doc-nav-item.active {
+      background: #eff6ff;
+      border-color: var(--brand-primary);
+    }
+
+    .doc-nav-title {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .doc-nav-item.active .doc-nav-title {
+      color: var(--brand-primary);
+    }
+
+    .doc-nav-desc {
+      font-size: 0.72rem;
+      color: var(--text-secondary);
+    }
+
+    .doc-content-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-light);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow-md);
+      overflow-x: auto;
+    }
+
+    .markdown-body {
+      line-height: 1.7;
+      color: #334155;
+      font-size: 0.92rem;
+    }
+
+    .markdown-body h1 {
+      font-size: 1.75rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      border-bottom: 2px solid var(--border-light);
+      padding-bottom: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .markdown-body h2 {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 1.75rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--border-light);
+      padding-bottom: 0.4rem;
+    }
+
+    .markdown-body h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-top: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .markdown-body p {
+      margin-bottom: 1rem;
+    }
+
+    .markdown-body ul, .markdown-body ol {
+      margin-bottom: 1rem;
+      padding-left: 1.5rem;
+    }
+
+    .markdown-body li {
+      margin-bottom: 0.35rem;
+    }
+
+    .markdown-body pre {
+      background: #0f172a;
+      color: #e2e8f0;
+      padding: 1.2rem;
+      border-radius: 12px;
+      overflow-x: auto;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      margin: 1.25rem 0;
+    }
+
+    .markdown-body code {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.85em;
+      background: #f1f5f9;
+      padding: 0.2em 0.4em;
+      border-radius: 4px;
+      color: #0f172a;
+    }
+
+    .markdown-body pre code {
+      background: transparent;
+      padding: 0;
+      color: inherit;
+    }
+
+    .markdown-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1.25rem 0;
+      font-size: 0.85rem;
+    }
+
+    .markdown-body th {
+      background: var(--bg-secondary);
+      padding: 0.75rem 1rem;
+      text-align: left;
+      border: 1px solid var(--border-light);
+      font-weight: 700;
+    }
+
+    .markdown-body td {
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border-light);
+    }
+
+    .markdown-body blockquote {
+      border-left: 4px solid var(--brand-primary);
+      padding-left: 1rem;
+      margin: 1rem 0;
+      color: var(--text-secondary);
+      background: #f8fafc;
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+    }
+
+    footer {
+      margin-top: auto;
+      padding: 1.75rem 2rem;
+      text-align: center;
+      border-top: 1px solid var(--border-light);
+      color: var(--text-tertiary);
+      font-size: 0.82rem;
+      background: var(--bg-primary);
+    }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const docsList = [
+      {
+        id: 'ARCHITECTURE',
+        title: 'Architecture Deep Dive',
+        desc: 'Edge, Compute, Multi-AZ RDS & network topology',
+        markdown: `# Architecture Deep Dive: AWS Three-Tier Infrastructure
+
+This document provides a comprehensive technical breakdown of the production-ready AWS Three-Tier Web Application deployed via Terraform.
+
+---
+
+## High-Level Tiered Request Flow
+
+1. **User Client** resolves DNS via **Route 53** alias pointing to **CloudFront Edge Locations**.
+2. **CloudFront CDN** handles SSL/TLS termination with ACM certificate (us-east-1), serves cached static frontend assets from **S3 Bucket (with Origin Access Control - OAC)**, and routes dynamic \`/api/*\` calls to **Application Load Balancer (ALB)**.
+3. **Application Load Balancer (ALB)** spans across multiple public subnets, performs HTTP-to-HTTPS redirect, conducts health checks on \`/api/health\`, and forwards traffic to the **Auto Scaling Group (ASG)**.
+4. **EC2 Application Fleet** runs inside private application subnets across multiple AZs. EC2 instances bootstrap Node.js Express via systemd, fetch database credentials from **AWS Secrets Manager**, and connect to RDS MySQL on port 3306.
+5. **RDS MySQL Multi-AZ Cluster** resides in isolated private data subnets without internet access, synchronously replicating to a hot standby in another AZ.
+
+---
+
+## Least-Privilege Network & Security Group Matrix
+
+| Source SG | Destination SG | Allowed Port | Protocol | Purpose |
+|---|---|---|---|---|
+| Internet (\`0.0.0.0/0\`) | \`alb-sg\` | 443 | TCP | Public HTTPS Web Traffic |
+| \`alb-sg\` | \`app-sg\` | 8080 | TCP | ALB to Node.js App Instances |
+| \`app-sg\` | \`rds-sg\` | 3306 | TCP | App Fleet to MySQL Multi-AZ |
+| \`app-sg\` | Internet via NAT | 443 | TCP | AWS API Calls (Secrets Manager, CloudWatch, SSM) |`
+      },
+      {
+        id: 'DEPLOYMENT',
+        title: 'Deployment Guide',
+        desc: 'Step-by-step Terraform provisioning guide',
+        markdown: `# Deployment Guide: AWS Three-Tier Infrastructure
+
+Step-by-step guide to provisioning the 3-tier architecture with Terraform.
+
+---
+
+## Prerequisites
+- **AWS CLI v2** configured with IAM Administrator credentials
+- **Terraform v1.5.0+**
+- **Git**
+
+---
+
+## Step 1: Remote State Bootstrap
+\`\`\`bash
+aws s3api create-bucket --bucket three-tier-tf-state-prod --region us-east-1
+aws dynamodb create-table --table-name three-tier-tf-locks-prod \\
+  --attribute-definitions AttributeName=LockID,AttributeType=S \\
+  --key-schema AttributeName=LockID,KeyType=HASH \\
+  --billing-mode PAY_PER_REQUEST --region us-east-1
+\`\`\`
+
+---
+
+## Step 2: Initialize and Deploy
+\`\`\`bash
+cd environments/prod
+terraform init
+terraform plan -var-file="terraform.tfvars" -out=tfplan
+terraform apply tfplan
+\`\`\`
+
+---
+
+## Step 3: Verification
+\`\`\`bash
+# Test ALB Health Check
+curl -k https://<alb-dns-name>/api/health
+\`\`\``
+      },
+      {
+        id: 'TROUBLESHOOTING',
+        title: 'Troubleshooting & Diagnostics',
+        desc: '10 failure scenarios and resolution playbooks',
+        markdown: `# Troubleshooting & Diagnostics Playbook
+
+Common failure scenarios and immediate diagnostic commands for operations teams.
+
+---
+
+### Scenario 1: Target Group Instances Unhealthy (502 Bad Gateway)
+- **Root Cause**: Node.js app not started or port 8080 blocked.
+- **Diagnostic Command**:
+\`\`\`bash
+aws ssm start-session --target <instance-id>
+systemctl status app.service
+journalctl -u app.service -n 50 --no-pager
+\`\`\`
+
+---
+
+### Scenario 2: App Cannot Connect to RDS MySQL
+- **Root Cause**: Security group misconfiguration or Secrets Manager permission failure.
+- **Diagnostic Command**:
+\`\`\`bash
+# Check connectivity from EC2 node
+nc -zv <rds-endpoint> 3306
+aws secretsmanager get-secret-value --secret-id <secret-arn>
+\`\`\`
+
+---
+
+### Scenario 3: CloudFront Returns 403 Forbidden on Static Assets
+- **Root Cause**: S3 Origin Access Control (OAC) bucket policy missing CloudFront distribution ARN.
+- **Resolution**: Verify \`aws_s3_bucket_policy\` grants \`s3:GetObject\` to \`cloudfront.amazonaws.com\` with Condition SourceArn.`
+      },
+      {
+        id: 'SECURITY',
+        title: 'Security & Compliance Matrix',
+        desc: 'Zero-trust IAM, KMS encryption, IMDSv2 controls',
+        markdown: `# Security Controls & Compliance Matrix
+
+Overview of enterprise security standards implemented across all layers.
+
+---
+
+## Key Security Highlights
+1. **No SSH Keys / Port 22 Closed**: Management access is exclusively governed via AWS SSM Session Manager with audit logs.
+2. **IMDSv2 Enforced**: Launch template enforces \`http_tokens = "required"\` to prevent SSRF credential theft.
+3. **Data Encryption**:
+   - In-Transit: TLS 1.3 on CloudFront, TLS 1.2 on ALB.
+   - At-Rest: AES-256 KMS customer-managed keys for RDS storage, EBS volumes, and S3 buckets.
+4. **Secrets Manager Integration**: Zero hardcoded credentials in code or repository.`
+      },
+      {
+        id: 'COST_ESTIMATION',
+        title: 'Cost Estimation & FinOps',
+        desc: 'Cost breakdowns across Dev, Staging, and Prod',
+        markdown: `# Cost Estimation & FinOps Breakdown
+
+Estimated monthly expenditure across AWS tiers.
+
+---
+
+| Environment | Compute (EC2/ASG) | Database (RDS) | Network (NAT/ALB) | Total Est. / Month |
+|---|---|---|---|---|
+| **Development** | ~$15 / mo (t3.micro) | ~$18 / mo (db.t4g.micro) | ~$64 / mo (1 NAT + ALB) | **~$97 / month** |
+| **Staging** | ~$35 / mo (t3.small) | ~$65 / mo (db.t4g.small Multi-AZ) | ~$130 / mo (2 NATs + ALB) | **~$230 / month** |
+| **Production** | ~$280 / mo (c6i.large) | ~$650 / mo (db.r6g.xlarge Multi-AZ) | ~$214 / mo (3 NATs + ALB) | **~$1,144 / month** |`
+      },
+      {
+        id: 'INTERVIEW_QUESTIONS',
+        title: 'DevOps & Cloud Q&A',
+        desc: '20 interview questions & architectural model answers',
+        markdown: `# Top 20 DevOps & Cloud Architecture Interview Q&A
+
+Comprehensive architectural interview questions based on this Three-Tier design.
+
+---
+
+### Q1: Why use a 3-tier architecture with separate subnets?
+**Answer**: Isolation of concerns and defense-in-depth. Public subnets only hold internet-facing load balancers. Application servers have no public IPs and communicate outbound via NAT. Databases are isolated in private subnets with zero NAT/internet access, accessible strictly from the application security group on port 3306.
+
+---
+
+### Q2: How does CloudFront Origin Access Control (OAC) differ from OAI?
+**Answer**: OAC supports all S3 buckets in all regions, supports AWS KMS SSE-KMS encryption, dynamic requests (PUT/DELETE), and provides fine-grained IAM resource-based access policies with SigV4 support.
+
+---
+
+### Q3: How do you achieve zero downtime database failovers with RDS Multi-AZ?
+**Answer**: RDS Multi-AZ uses synchronous block-level storage replication between Primary and Standby. If the primary fails, RDS automatically switches the DNS CNAME record to the standby within 60 seconds without data loss.`
+      },
+      {
+        id: 'ROLLBACK',
+        title: 'Rollback & Disaster Recovery',
+        desc: 'Automated rollback strategies for compute and data',
+        markdown: `# Rollback & Disaster Recovery Procedures
+
+Playbooks for rolling back deployments across compute, database, and infrastructure.
+
+---
+
+## 1. Application Rollback via ASG Instance Refresh
+\`\`\`bash
+aws autoscaling rollback-instance-refresh --auto-scaling-group-name prod-asg-app-tier
+\`\`\`
+
+## 2. Database Point-in-Time Recovery (PITR)
+\`\`\`bash
+aws rds restore-db-instance-to-point-in-time \\
+  --source-db-instance-identifier prod-rds-mysql \\
+  --target-db-instance-identifier prod-rds-mysql-recovered \\
+  --restore-time "2026-07-25T12:00:00Z"
+\`\`\``
+      },
+      {
+        id: 'ROADMAP',
+        title: 'Engineering Roadmap',
+        desc: 'Future architectural enhancements (WAF, ECS, Aurora)',
+        markdown: `# Architecture Roadmap & Future Enhancements
+
+Next steps for scaling and enterprise modernization.
+
+---
+
+- [x] Multi-AZ VPC Segmentation & Route Tables
+- [x] Auto Scaling Compute with CloudWatch Alarms
+- [x] Secrets Manager Credentials Automation
+- [x] CloudFront CDN with Origin Access Control
+- [ ] AWS WAF v2 rate-limiting and OWASP Top 10 rules
+- [ ] Migration of Application Fleet to ECS Fargate Containers
+- [ ] Multi-Region Active-Active DR with Aurora Global Database`
+      }
+    ];
+
+    function App() {
+      const [activeDoc, setActiveDoc] = useState(docsList[0]);
+      const [search, setSearch] = useState('');
+
+      const filtered = docsList.filter(d =>
+        d.title.toLowerCase().includes(search.toLowerCase()) ||
+        d.desc.toLowerCase().includes(search.toLowerCase())
+      );
+
+      return (
+        <React.Fragment>
+          <header>
+            <div className="header-inner">
+              <a href="/" className="brand-container">
+                <div className="brand-logo">3T</div>
+                <div className="brand-text">
+                  <h1>Documentation & Knowledge Base</h1>
+                  <span>AWS 3-Tier Architecture</span>
+                </div>
+              </a>
+
+              <nav className="nav-links">
+                <a href="/" className="nav-link">Console</a>
+                <a href="/src" className="nav-link">Source Code</a>
+                <a href="/modules" className="nav-link">Terraform Modules</a>
+                <a href="/environments" className="nav-link">Environments</a>
+                <a href="/docs" className="nav-link active">Docs</a>
+              </nav>
+
+              <div className="header-actions">
+                <div className="pill-item status-chip-operational">
+                  8 Guides Available
+                </div>
+                <a href="https://github.com/yashbaviskar15/3-tier-app/tree/main/docs" target="_blank" rel="noreferrer" className="btn-github">
+                  GitHub /docs
+                </a>
+              </div>
+            </div>
+          </header>
+
+          <main>
+            <div className="hero-banner">
+              <h2>Architecture & Operations Documentation</h2>
+              <p>Explore comprehensive technical guides covering architecture diagrams, step-by-step deployment, security baselines, FinOps costs, troubleshooting playbooks, and interview prep.</p>
+            </div>
+
+            <div className="docs-layout">
+              <div className="docs-sidebar">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Search documentation..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+
+                {filtered.map(doc => (
+                  <div
+                    key={doc.id}
+                    className={`doc-nav-item ${activeDoc.id === doc.id ? 'active' : ''}`}
+                    onClick={() => setActiveDoc(doc)}
+                  >
+                    <span className="doc-nav-title">{doc.title}</span>
+                    <span className="doc-nav-desc">{doc.desc}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="doc-content-card">
+                <div
+                  className="markdown-body"
+                  dangerouslySetInnerHTML={{ __html: marked.parse(activeDoc.markdown) }}
+                />
+              </div>
+            </div>
+          </main>
+
+          <footer>
+            AWS Three-Tier Web Application &bull; <a href="https://github.com/yashbaviskar15/3-tier-app" target="_blank" rel="noreferrer">yashbaviskar15/3-tier-app</a>
+          </footer>
+        </React.Fragment>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

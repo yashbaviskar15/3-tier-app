@@ -79,10 +79,8 @@ module "alb" {
 }
 
 # User Data Template Rendering
-data "template_file" "user_data" {
-  template = file("${path.module}/../../src/scripts/user_data.sh.tpl")
-
-  vars = {
+locals {
+  user_data_rendered = templatefile("${path.module}/../../src/scripts/user_data.sh.tpl", {
     aws_region     = var.aws_region
     db_secret_arn  = module.rds.secret_arn
     db_host        = module.rds.db_address
@@ -95,7 +93,7 @@ data "template_file" "user_data" {
     package_json   = file("${path.module}/../../src/app/package.json")
     app_index_js   = file("${path.module}/../../src/app/index.js")
     app_index_html = file("${path.module}/../../src/app/public/index.html")
-  }
+  })
 }
 
 # 7. Auto Scaling Group Module
@@ -113,7 +111,7 @@ module "asg" {
   target_group_arn_suffix   = module.alb.target_group_arn_suffix
   security_group_id         = module.security_groups.app_security_group_id
   iam_instance_profile_name = module.iam.instance_profile_name
-  user_data_base64          = base64encode(data.template_file.user_data.rendered)
+  user_data_base64          = base64encode(local.user_data_rendered)
   tags                      = local.common_tags
 }
 

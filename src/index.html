@@ -589,16 +589,8 @@ systemctl enable --now app.service`,
           const res = await fetch(endpoint, opts);
           const data = await res.json();
           setApiResponse(JSON.stringify(data, null, 2));
-        } catch (e) {
-          if (endpoint === '/api/health') {
-            setApiResponse(JSON.stringify({ status: 'UP', tier1_presentation: 'HEALTHY', tier2_application: 'HEALTHY', tier3_database: 'HEALTHY', region: 'ap-south-1' }, null, 2));
-          } else if (endpoint === '/api/info') {
-            setApiResponse(JSON.stringify({ app: 'AWS 3-Tier Enterprise App', tier: 'Application Fleet', region: 'ap-south-1', status: 'HEALTHY' }, null, 2));
-          } else if (endpoint === '/api/db-status') {
-            setApiResponse(JSON.stringify({ status: 'CONNECTED', engine: 'Amazon Aurora MySQL (Multi-AZ)', database: 'appdb_production', host: 'db-cluster.prod.ap-south-1.rds.amazonaws.com' }, null, 2));
-          } else {
-            setApiResponse(JSON.stringify({ output: 'Command executed successfully.' }, null, 2));
-          }
+        } catch (err) {
+          setApiResponse(JSON.stringify({ status: 'ERROR', message: 'Request failed: ' + (err && err.message ? err.message : 'unknown error') }, null, 2));
         }
       };
 
@@ -646,8 +638,8 @@ systemctl enable --now app.service`,
               <div className="card">
                 <div className="card-title">
                   <span>Source Code Files</span>
-                  <button className="btn-copy" onClick={copyCode}>
-                    {copied ? '✓ Copied' : 'Copy File'}
+                  <button type="button" className="btn-copy" onClick={copyCode}>
+                    {copied ? 'Copied' : 'Copy File'}
                   </button>
                 </div>
                 <div className="file-tabs">
@@ -676,16 +668,16 @@ systemctl enable --now app.service`,
                 </p>
 
                 <div className="api-buttons">
-                  <button className="btn-api" onClick={() => testApi('/api/health')}>
+                  <button type="button" className="btn-api" onClick={() => testApi('/api/health')}>
                     <span className="badge-method badge-get">GET</span> /api/health
                   </button>
-                  <button className="btn-api" onClick={() => testApi('/api/info')}>
+                  <button type="button" className="btn-api" onClick={() => testApi('/api/info')}>
                     <span className="badge-method badge-get">GET</span> /api/info
                   </button>
-                  <button className="btn-api" onClick={() => testApi('/api/db-status')}>
+                  <button type="button" className="btn-api" onClick={() => testApi('/api/db-status')}>
                     <span className="badge-method badge-get">GET</span> /api/db-status
                   </button>
-                  <button className="btn-api" onClick={() => testApi('/api/exec', 'POST', { command: 'health' })}>
+                  <button type="button" className="btn-api" onClick={() => testApi('/api/exec', 'POST', { command: 'health' })}>
                     <span className="badge-method badge-post">POST</span> /api/exec (health)
                   </button>
                 </div>

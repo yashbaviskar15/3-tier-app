@@ -5,7 +5,9 @@
   "main": "api/index.js",
   "scripts": {
     "start": "node src/app/index.js",
-    "dev": "node src/app/index.js"
+    "dev": "node src/app/index.js",
+    "lint": "node scripts/lint.js",
+    "test": "node --test"
   },
   "keywords": [
     "aws",
@@ -22,9 +24,5 @@
   ],
   "author": "Yash Baviskar",
   "license": "MIT",
-  "dependencies": {
-    "express": "^4.19.2",
-    "mysql2": "^3.9.7",
-    "pg": "^8.12.0"
-  }
+  "dependencies": {}
 }

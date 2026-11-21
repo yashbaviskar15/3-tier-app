@@ -46,9 +46,10 @@ module "s3" {
 module "iam" {
   source = "../../modules/iam"
 
-  name_prefix    = local.name_prefix
-  s3_bucket_arns = [module.s3.static_bucket_arn, module.s3.logs_bucket_arn]
-  tags           = local.common_tags
+  name_prefix                 = local.name_prefix
+  s3_bucket_arns              = [module.s3.static_bucket_arn, module.s3.logs_bucket_arn]
+  secrets_manager_secret_arns = [module.rds.secret_arn]
+  tags                        = local.common_tags
 }
 
 # 5. ACM Module

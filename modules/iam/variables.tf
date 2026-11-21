@@ -9,6 +9,12 @@ variable "s3_bucket_arns" {
   default     = []
 }
 
+variable "secrets_manager_secret_arns" {
+  description = "ARNs of Secrets Manager secrets that EC2 instances need read access to. When empty, access is scoped to the secret name prefix pattern."
+  type        = list(string)
+  default     = []
+}
+
 variable "tags" {
   description = "Map of tags to assign to resources"
   type        = map(string)

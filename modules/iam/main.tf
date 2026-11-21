@@ -35,6 +35,10 @@ resource "aws_iam_role_policy_attachment" "cloudwatch" {
   policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
+data "aws_caller_identity" "current" {}
+
+data "aws_region" "current" {}
+
 # Least-privilege policy for S3 bucket read access & Secrets Manager get secret
 data "aws_iam_policy_document" "app_permissions" {
   statement {
@@ -44,9 +48,11 @@ data "aws_iam_policy_document" "app_permissions" {
   }
 
   statement {
-    sid       = "SecretsManagerGetSecret"
-    actions   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
-    resources = ["*"]
+    sid     = "SecretsManagerGetSecret"
+    actions = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
+    resources = length(var.secrets_manager_secret_arns) > 0 ? var.secrets_manager_secret_arns : [
+      "arn:aws:secretsmanager:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:secret:${var.name_prefix}/*"
+    ]
   }
 }
 

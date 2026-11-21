@@ -597,8 +597,8 @@ deletion_protection = true`
                     </div>
                   ))}
                 </div>
-                <button className="btn-copy" onClick={copyCode}>
-                  {copied ? '✓ Copied' : 'Copy terraform.tfvars'}
+                <button type="button" className="btn-copy" onClick={copyCode}>
+                  {copied ? 'Copied' : 'Copy terraform.tfvars'}
                 </button>
               </div>
 

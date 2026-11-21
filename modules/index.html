@@ -812,19 +812,13 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "static" {
                     <p>{mod.desc}</p>
                     <div className="features-list">
                       {mod.tags.map((t, i) => (
-                        <span className="feature-tag" key={i}>✓ {t}</span>
+                        <span className="feature-tag" key={i}>{t}</span>
                       ))}
                     </div>
                   </div>
-                  <button className="btn-copy" onClick={copyCode}>
-                    {copied ? '✓ Copied' : 'Copy HCL'}
+                  <button type="button" className="btn-copy" onClick={copyCode}>
+                    {copied ? 'Copied' : 'Copy HCL'}
                   </button>
-                </div>
-
-                <div className="code-tabs">
-                  <div className="code-tab active">main.tf</div>
-                  <div className="code-tab">variables.tf</div>
-                  <div className="code-tab">outputs.tf</div>
                 </div>
 
                 <div className="code-box">

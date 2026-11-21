@@ -479,6 +479,49 @@
     .topology-node.n-active svg { color: var(--brand-primary); }
     .topology-node.n-connected svg { color: var(--success); }
 
+    .topology-node.n-disconnected {
+      background: var(--danger-bg);
+      border-color: var(--danger);
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.15);
+    }
+
+    .topology-node.n-disconnected svg { color: var(--danger); }
+
+    .connection-banner {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+      padding: 0.7rem 1rem;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid var(--warning-border);
+      background: var(--warning-bg);
+      color: var(--text-primary);
+    }
+
+    .connection-banner.offline {
+      border-color: var(--danger-border);
+      background: var(--danger-bg);
+    }
+
+    .connection-banner button {
+      margin-left: auto;
+    }
+
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+
     .node-text-container {
       display: flex;
       flex-direction: column;
@@ -895,12 +938,17 @@
 
   <div id="root"></div>
 
+  <script src="/lib/apiClient.js"></script>
   <script type="text/babel">
-    const { useState, useEffect, useRef } = React;
+    const { useState, useEffect, useRef, Component } = React;
 
     const API_BASE = window.location.protocol.startsWith('http') ? '' : 'http://localhost:8080';
+    const ApiClientCtor = window.ApiClient ? window.ApiClient.ApiClient : null;
+    const api = ApiClientCtor
+      ? new ApiClientCtor({ baseUrl: API_BASE, timeoutMs: 8000, retries: 2 })
+      : null;
 
-    function Header({ status, region }) {
+    function Header({ status }) {
       return (
         <header>
           <div className="header-inner">
@@ -952,7 +1000,7 @@
     }
 
     function TopologyMap({ appUp, dbStatus }) {
-      const dbClass = dbStatus === 'CONNECTED' ? 'n-connected' : 'n-connected';
+      const dbClass = dbStatus === 'CONNECTED' ? 'n-connected' : 'n-disconnected';
       return (
         <div className="topology-card">
           <div className="section-title">
@@ -1039,12 +1087,45 @@
       const [port, setPort] = useState('3306');
       const [engine, setEngine] = useState('MYSQL');
       const [user, setUser] = useState('admin');
-      const [password, setPassword] = useState('••••••••••••');
-      const [database, setDatabase] = useState('appdb_production');
+      const [password, setPassword] = useState('');
+      const [database, setDatabase] = useState(currentDb.database || 'appdb_production');
+      const [busy, setBusy] = useState(false);
+      const [error, setError] = useState('');
 
-      const handleConnect = () => {
-        if (!host.trim()) return;
-        onConnectDb({ host: host.trim(), port: port.trim(), user: user.trim(), password: password.trim(), database: database.trim(), engine });
+      // Keep the form in step with the active database (avoids stale values).
+      useEffect(() => {
+        if (currentDb && currentDb.host) setHost(currentDb.host);
+        if (currentDb && currentDb.database) setDatabase(currentDb.database);
+      }, [currentDb.host, currentDb.database]);
+
+      const handleConnect = async () => {
+        const trimmedHost = host.trim();
+        const portNumber = Number(port);
+        if (!trimmedHost) {
+          setError('Database host endpoint is required.');
+          return;
+        }
+        if (!Number.isInteger(portNumber) || portNumber < 1 || portNumber > 65535) {
+          setError('Port must be a whole number between 1 and 65535.');
+          return;
+        }
+        setError('');
+        setBusy(true);
+        try {
+          await onConnectDb({ host: trimmedHost, port: portNumber, user: user.trim(), password: password, database: database.trim(), engine });
+        } finally {
+          setBusy(false);
+        }
+      };
+
+      const handleMock = async () => {
+        setError('');
+        setBusy(true);
+        try {
+          await onUseMock();
+        } finally {
+          setBusy(false);
+        }
       };
 
       return (
@@ -1059,8 +1140,8 @@
 
           <div className="form-grid">
             <div className="form-group">
-              <label>Database Engine</label>
-              <select className="select-field" value={engine} onChange={(e) => {
+              <label htmlFor="db-engine">Database Engine</label>
+              <select id="db-engine" className="select-field" value={engine} disabled={busy} onChange={(e) => {
                 setEngine(e.target.value);
                 setPort(e.target.value === 'POSTGRESQL' ? '5432' : '3306');
               }}>
@@ -1070,62 +1151,79 @@
             </div>
 
             <div className="form-group">
-              <label>Database Host Endpoint</label>
+              <label htmlFor="db-host">Database Host Endpoint</label>
               <input
+                id="db-host"
                 type="text"
                 className="input-field"
                 value={host}
+                disabled={busy}
+                aria-required="true"
                 onChange={(e) => setHost(e.target.value)}
                 placeholder="db-primary.prod.ap-south-1.rds.amazonaws.com"
               />
             </div>
 
             <div className="form-group">
-              <label>Port</label>
+              <label htmlFor="db-port">Port</label>
               <input
-                type="text"
+                id="db-port"
+                type="number"
+                min="1"
+                max="65535"
                 className="input-field"
                 value={port}
+                disabled={busy}
                 onChange={(e) => setPort(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label>Database Name</label>
+              <label htmlFor="db-name">Database Name</label>
               <input
+                id="db-name"
                 type="text"
                 className="input-field"
                 value={database}
+                disabled={busy}
                 onChange={(e) => setDatabase(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label>Master Username</label>
+              <label htmlFor="db-user">Master Username</label>
               <input
+                id="db-user"
                 type="text"
                 className="input-field"
                 value={user}
+                disabled={busy}
                 onChange={(e) => setUser(e.target.value)}
               />
             </div>
 
             <div className="form-group">
-              <label>Master Password</label>
+              <label htmlFor="db-password">Master Password</label>
               <input
+                id="db-password"
                 type="password"
                 className="input-field"
                 value={password}
+                disabled={busy}
+                autoComplete="new-password"
+                placeholder="Enter password"
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
 
+          {error && <p role="alert" style={{ color: 'var(--danger)', fontSize: '0.78rem', fontWeight: 600 }}>{error}</p>}
+
           <div className="btn-row">
-            <button className="btn-primary" onClick={handleConnect}>
-              Connect Database Cluster
+            <button type="button" className="btn-primary" onClick={handleConnect} disabled={busy} aria-busy={busy}>
+              {busy ? 'Connecting...' : 'Connect Database Cluster'}
             </button>
-            <button className="btn-demo" onClick={onUseMock}>
+            <button type="button" className="btn-demo" onClick={handleMock} disabled={busy}>
               Use Demo DB (Local Fallback)
             </button>
           </div>
@@ -1208,91 +1306,97 @@
       const [logs, setLogs] = useState([]);
       const [syncing, setSyncing] = useState(false);
       const [globalStatus, setGlobalStatus] = useState('Operational');
+      const [connectionError, setConnectionError] = useState('');
 
       const log = (text, type = 'info') => {
         setLogs(prev => [...prev, { time: new Date().toLocaleTimeString(), text, type }]);
+      };
+
+      const describeError = (err) => {
+        if (err && err.code === 'TIMEOUT') return 'The API did not respond in time.';
+        if (err && err.code === 'NETWORK_ERROR') return 'The API is unreachable.';
+        return (err && err.message) || 'Unexpected API error.';
       };
 
       const sync = async () => {
         setSyncing(true);
         log('Syncing operational metrics across 3-tier subnets...');
 
-        try {
-          const r = await fetch(API_BASE + '/api/info');
-          if (r.ok) {
-            const d = await r.json();
-            setAppData({
-              status: 'UP',
-              hostname: d.hostname || 'asg-node-prod-01',
-              platform: d.platform || 'Linux 6.1',
-              region: d.region || 'ap-south-1'
-            });
-            log(`Application node online: ${d.hostname || 'asg-node-prod-01'}`, 'success');
-          }
-        } catch {
-          log('Application fleet synchronized (Emulated Cloud Mesh Active).', 'success');
+        if (!api) {
+          setConnectionError('The API client failed to load. Reload the page to retry.');
+          setGlobalStatus('Offline');
+          setAppData(prev => Object.assign({}, prev, { status: 'DOWN' }));
+          setDbData(prev => Object.assign({}, prev, { status: 'DISCONNECTED' }));
+          setSyncing(false);
+          return;
         }
 
         try {
-          const r = await fetch(API_BASE + '/api/db-status');
-          if (r.ok) {
-            const d = await r.json();
-            setDbData({
-              status: 'CONNECTED',
-              database: d.database || 'appdb_production',
-              host: d.host || 'db-cluster.prod.ap-south-1.rds.amazonaws.com',
-              engine: d.engine || 'Amazon Aurora MySQL (Multi-AZ)'
-            });
-            log(`Database cluster connected: "${d.database || 'appdb_production'}"`, 'success');
-          }
-        } catch {
-          log('Database cluster synchronized (Multi-AZ Standby Synchronized).', 'success');
-        }
+          const info = await api.info();
+          setAppData({
+            status: 'UP',
+            hostname: info.hostname || 'asg-node-prod-01',
+            platform: info.platform || 'Linux 6.1',
+            region: info.region || 'ap-south-1'
+          });
+          log('Application node online: ' + (info.hostname || 'asg-node-prod-01'), 'success');
 
-        setGlobalStatus('Operational');
-        setTimeout(() => setSyncing(false), 400);
+          const db = await api.dbStatus();
+          setDbData({
+            status: db.status || 'CONNECTED',
+            database: db.database || 'appdb_production',
+            host: db.host || 'db-cluster.prod.ap-south-1.rds.amazonaws.com',
+            engine: db.engine || 'Amazon Aurora MySQL (Multi-AZ)'
+          });
+          log('Database cluster connected: "' + (db.database || 'appdb_production') + '"', 'success');
+
+          setConnectionError('');
+          setGlobalStatus('Operational');
+        } catch (err) {
+          const message = describeError(err);
+          setConnectionError(message);
+          setGlobalStatus('Degraded');
+          setAppData(prev => Object.assign({}, prev, { status: 'DOWN' }));
+          setDbData(prev => Object.assign({}, prev, { status: 'DISCONNECTED' }));
+          log('Sync failed: ' + message, 'error');
+        } finally {
+          setSyncing(false);
+        }
       };
 
       const connectDb = async (dbConfig) => {
         log(`Initiating database handshake to ${dbConfig.host}:${dbConfig.port}...`, 'info');
         try {
-          const r = await fetch(API_BASE + '/api/connect-db', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(dbConfig)
-          });
-          const d = await r.json();
-          if (r.ok) {
-            setDbData({ status: 'CONNECTED', database: d.database, host: d.host, engine: d.engine });
-            log(`Connected to database cluster: "${d.database}"`, 'success');
-          }
-        } catch {
-          setDbData({
-            status: 'CONNECTED',
-            database: dbConfig.database || 'appdb',
-            host: dbConfig.host,
-            engine: dbConfig.engine === 'POSTGRESQL' ? 'PostgreSQL 15' : 'MySQL 8.0'
-          });
-          log(`Connected to ${dbConfig.host}`, 'success');
+          if (!api) throw new Error('The API client failed to load.');
+          const d = await api.connectDb(dbConfig);
+          setDbData({ status: d.status || 'CONNECTED', database: d.database, host: d.host, engine: d.engine });
+          setConnectionError('');
+          log(`Connected to database cluster: "${d.database}"`, 'success');
+        } catch (err) {
+          const message = describeError(err);
+          setConnectionError(message);
+          log('Database handshake failed: ' + message, 'error');
         }
       };
 
       const useMockDb = async () => {
         log('Switching to local fallback database...', 'info');
         try {
-          await fetch(API_BASE + '/api/connect-db', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ engine: 'MOCK' })
+          if (!api) throw new Error('The API client failed to load.');
+          const d = await api.connectDb({ engine: 'MOCK' });
+          setDbData({
+            status: 'CONNECTED',
+            database: d.database || 'in_memory_mock_db (Local Fallback)',
+            host: d.host || 'localhost-mock',
+            engine: d.engine || 'In-Memory Fallback Database'
           });
-        } catch {}
-        setDbData({
-          status: 'CONNECTED',
-          database: 'in_memory_mock_db (Local Fallback)',
-          host: 'localhost-mock',
-          engine: 'In-Memory Fallback Database'
-        });
-        log('Local fallback database active.', 'success');
+          setConnectionError('');
+          log('Local fallback database active.', 'success');
+        } catch (err) {
+          const message = describeError(err);
+          setConnectionError(message);
+          log('Failed to activate fallback database: ' + message, 'error');
+        }
       };
 
       const clearLogs = () => { setLogs([]); };
@@ -1300,32 +1404,18 @@
       const execCommand = async (command) => {
         log(`> ${command}`, 'info');
         try {
-          const r = await fetch(API_BASE + '/api/exec', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ command })
-          });
-          if (r.ok) {
-            const d = await r.json();
-            if (d.output) {
-              d.output.split('\n').forEach(line => { log(line, 'success'); });
-              return;
-            }
+          if (!api) throw new Error('The API client failed to load.');
+          const d = await api.exec(command);
+          if (d && d.output) {
+            d.output.split('\n').forEach(line => { log(line, 'success'); });
+          } else {
+            log('Command completed with no output.', 'info');
           }
-        } catch {}
-
-        const cmd = command.toLowerCase().trim();
-        if (cmd === 'health') {
-          log('[TIER 1 - PRESENTATION]: HEALTHY (CloudFront CDN Active)', 'success');
-          log('[TIER 2 - APPLICATION] : HEALTHY (3/3 Healthy EC2 Nodes)', 'success');
-          log(`[TIER 3 - DATABASE]   : HEALTHY (${dbData.engine})`, 'success');
-          log('OVERALL SYSTEM STATUS : OPERATIONAL', 'success');
-        } else if (cmd === 'db-status') {
-          log(`Database: ${dbData.database} (${dbData.engine}) @ ${dbData.host}`, 'success');
-        } else if (cmd === 'info') {
-          log('AWS 3-Tier Enterprise Infrastructure in ap-south-1 (Mumbai)', 'success');
-        } else {
-          log(`Executed: ${command} - OK`, 'success');
+          setConnectionError('');
+        } catch (err) {
+          const message = describeError(err);
+          setConnectionError(message);
+          log('Command failed: ' + message, 'error');
         }
       };
 
@@ -1336,8 +1426,19 @@
 
       return (
         <React.Fragment>
-          <Header status={globalStatus} region={appData.region} />
+          <Header status={globalStatus} />
+          <div className="sr-only" role="status" aria-live="polite">
+            {connectionError ? 'Backend status degraded. ' + connectionError : 'Backend status ' + globalStatus + '.'}
+          </div>
           <main>
+            {connectionError && (
+              <div className="connection-banner offline">
+                <span>Backend unavailable: {connectionError}</span>
+                <button type="button" className="btn-primary" onClick={sync} disabled={syncing}>
+                  {syncing ? 'Retrying...' : 'Retry'}
+                </button>
+              </div>
+            )}
             <div className="intro-bar">
               <div className="intro-title">
                 <h2>Production Environment</h2>
@@ -1397,7 +1498,41 @@
       );
     }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+    class ErrorBoundary extends Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, message: '' };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, message: (error && error.message) || 'Unexpected error' };
+      }
+
+      componentDidCatch(error, info) {
+        if (typeof console !== 'undefined') {
+          console.error('Console crashed:', error, info);
+        }
+      }
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div role="alert" style={{ maxWidth: '560px', margin: '4rem auto', padding: '0 1.5rem', fontFamily: 'Inter, sans-serif' }}>
+              <h1 style={{ fontSize: '1.15rem', fontWeight: 800, marginBottom: '0.5rem' }}>Console failed to render</h1>
+              <p style={{ color: '#475569', fontSize: '0.85rem', marginBottom: '1rem' }}>{this.state.message}</p>
+              <button type="button" className="btn-primary" onClick={() => window.location.reload()}>Reload console</button>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    );
   </script>
 </body>
 </html>

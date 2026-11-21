@@ -37,7 +37,7 @@ variable "private_app_subnet_cidrs" {
 variable "private_data_subnet_cidrs" {
   description = "Private data subnet CIDRs"
   type        = list(string)
-  default     = ["10.2.100.0/24", "10.2.200.0/24", "10.2.300.0/24"]
+  default     = ["10.2.100.0/24", "10.2.101.0/24", "10.2.102.0/24"]
 }
 
 variable "single_nat_gateway" {

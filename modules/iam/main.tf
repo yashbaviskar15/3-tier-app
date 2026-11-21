@@ -36,17 +36,27 @@ resource "aws_iam_role_policy_attachment" "cloudwatch" {
 }
 
 # Least-privilege policy for S3 bucket read access & Secrets Manager get secret
+# Statements are only emitted when the corresponding ARN lists are non-empty so an
+# empty configuration never falls back to a wildcard resource.
 data "aws_iam_policy_document" "app_permissions" {
-  statement {
-    sid       = "S3ReadAccess"
-    actions   = ["s3:GetObject", "s3:ListBucket"]
-    resources = length(var.s3_bucket_arns) > 0 ? concat(var.s3_bucket_arns, [for arn in var.s3_bucket_arns : "${arn}/*"]) : ["*"]
+  dynamic "statement" {
+    for_each = length(var.s3_bucket_arns) > 0 ? [1] : []
+
+    content {
+      sid       = "S3ReadAccess"
+      actions   = ["s3:GetObject", "s3:ListBucket"]
+      resources = concat(var.s3_bucket_arns, [for arn in var.s3_bucket_arns : "${arn}/*"])
+    }
   }
 
-  statement {
-    sid       = "SecretsManagerGetSecret"
-    actions   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
-    resources = ["*"]
+  dynamic "statement" {
+    for_each = length(var.secrets_manager_secret_arns) > 0 ? [1] : []
+
+    content {
+      sid       = "SecretsManagerGetSecret"
+      actions   = ["secretsmanager:GetSecretValue", "secretsmanager:DescribeSecret"]
+      resources = var.secrets_manager_secret_arns
+    }
   }
 }
 
